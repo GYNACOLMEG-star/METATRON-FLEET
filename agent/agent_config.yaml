@@ -1,0 +1,7 @@
+# OpenClaw Agent Configuration
+server_url: "http://localhost:8000"
+machine_name: "worker-01"
+machine_id: null        # Filled in automatically after first registration
+api_key: null           # Filled in automatically after first registration
+heartbeat_interval: 10  # seconds between heartbeats
+poll_interval: 5        # seconds between command polls

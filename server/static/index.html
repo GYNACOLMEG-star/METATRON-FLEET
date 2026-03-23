@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>METATRON-FLEET | Command Center</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <span class="logo">&#9670; METATRON-FLEET</span>
+    <span class="engine-badge"><span class="dot"></span>OpenClaw Engine: ACTIVE</span>
+    <span class="spacer"></span>
+    <span class="ws-status disconnected" id="ws-status">&#9679; DISCONNECTED</span>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <div class="sidebar-header">Fleet Machines</div>
+      <div class="machine-list" id="sidebar-list">
+        <div class="empty-state">No machines registered</div>
+      </div>
+    </aside>
+
+    <main>
+      <!-- Fleet Grid -->
+      <section>
+        <div class="section-title">&#9670; Fleet Status</div>
+        <div class="fleet-grid" id="fleet-grid">
+          <div class="empty-state">Waiting for machines to connect...</div>
+        </div>
+      </section>
+
+      <!-- Metrics Charts -->
+      <section class="panel" id="metrics-section" style="display:none">
+        <div class="section-title">&#9670; Machine Metrics — <span id="metrics-machine-name"></span></div>
+        <div class="metrics-charts">
+          <div class="chart-wrap">
+            <div class="chart-label">CPU %</div>
+            <canvas id="chart-cpu" width="400" height="60"></canvas>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label">Memory %</div>
+            <canvas id="chart-mem" width="400" height="60"></canvas>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label">Disk %</div>
+            <canvas id="chart-disk" width="400" height="60"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Command Panel -->
+      <section class="panel">
+        <div class="section-title">&#9670; OpenClaw — Command Dispatch</div>
+        <div class="dispatch-form" id="dispatch-form">
+          <select id="machine-select">
+            <option value="">-- Select Machine --</option>
+          </select>
+          <input type="text" class="cmd-input" id="cmd-input" placeholder="Enter command..." autocomplete="off">
+          <input type="number" class="timeout-input" id="timeout-input" value="60" min="1" max="3600" title="Timeout (seconds)">
+          <button class="btn" id="dispatch-btn" onclick="CommandPanel.dispatch()">Dispatch via OpenClaw</button>
+        </div>
+        <table class="cmd-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Machine</th>
+              <th>Command</th>
+              <th>Output</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="cmd-table-body">
+            <tr><td colspan="5" class="empty-state">No commands dispatched yet</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <span id="footer-machines">Machines: 0 online / 0 total</span>
+    <span id="footer-commands">Commands: 0 pending</span>
+    <span style="flex:1"></span>
+    <span>METATRON-FLEET v1.0 | OpenClaw Engine</span>
+  </footer>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

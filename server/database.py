@@ -47,12 +47,27 @@ CREATE TABLE IF NOT EXISTS metrics (
 )
 """
 
+CREATE_ICC_MESSAGES = """
+CREATE TABLE IF NOT EXISTS icc_messages (
+    id TEXT PRIMARY KEY,
+    thread_id TEXT NOT NULL,
+    sender_id TEXT REFERENCES machines(id),
+    recipient_id TEXT REFERENCES machines(id),
+    role TEXT NOT NULL,
+    content TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    created_at TEXT,
+    delivered_at TEXT
+)
+"""
+
 
 async def init_db():
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(CREATE_MACHINES)
         await db.execute(CREATE_COMMANDS)
         await db.execute(CREATE_METRICS)
+        await db.execute(CREATE_ICC_MESSAGES)
         await db.commit()
 
 
@@ -208,3 +223,60 @@ async def fetch_recent_metrics(db, machine_id: str, n: int = 60):
     ) as cur:
         rows = await cur.fetchall()
         return [dict(r) for r in reversed(rows)]
+
+
+# ICC (Inter-Claude Communication) helpers
+
+async def insert_icc_message(db, msg: dict):
+    await db.execute(
+        """INSERT INTO icc_messages (id, thread_id, sender_id, recipient_id, role, content, status, created_at)
+           VALUES (:id, :thread_id, :sender_id, :recipient_id, :role, :content, :status, :created_at)""",
+        msg,
+    )
+    await db.commit()
+
+
+async def fetch_icc_message(db, message_id: str):
+    async with db.execute("SELECT * FROM icc_messages WHERE id = ?", (message_id,)) as cur:
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def fetch_pending_icc_messages(db, recipient_id: str, limit: int = 10):
+    async with db.execute(
+        """SELECT * FROM icc_messages WHERE recipient_id = ? AND status = 'pending'
+           ORDER BY created_at LIMIT ?""",
+        (recipient_id, limit),
+    ) as cur:
+        rows = await cur.fetchall()
+        return [dict(r) for r in rows]
+
+
+async def update_icc_message_delivered(db, message_id: str, delivered_at: str):
+    await db.execute(
+        "UPDATE icc_messages SET status = 'delivered', delivered_at = ? WHERE id = ?",
+        (delivered_at, message_id),
+    )
+    await db.commit()
+
+
+async def fetch_icc_thread(db, thread_id: str, limit: int = 50):
+    async with db.execute(
+        """SELECT * FROM icc_messages WHERE thread_id = ?
+           ORDER BY created_at DESC LIMIT ?""",
+        (thread_id, limit),
+    ) as cur:
+        rows = await cur.fetchall()
+        return [dict(r) for r in reversed(rows)]
+
+
+async def fetch_icc_threads_for_agent(db, agent_id: str):
+    """Return the most recent message per unique thread involving this agent."""
+    async with db.execute(
+        """SELECT DISTINCT thread_id FROM icc_messages
+           WHERE sender_id = ? OR recipient_id = ?
+           ORDER BY created_at DESC""",
+        (agent_id, agent_id),
+    ) as cur:
+        rows = await cur.fetchall()
+        return [r[0] for r in rows]

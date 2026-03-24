@@ -6,7 +6,9 @@ processes them through the Anthropic API, and posts replies back.
 
 Usage:
     python agent/claude_agent.py
+    python agent/claude_agent.py --config agent/claude_beta_config.yaml
     python agent/claude_agent.py --send <recipient_name> "Your message here"
+    python agent/claude_agent.py --config agent/claude_beta_config.yaml --send claude-alpha "Hi!"
 """
 import argparse
 import logging
@@ -33,8 +35,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("claude-agent")
 
-CONFIG_PATH = Path(__file__).parent / "claude_agent_config.yaml"
+DEFAULT_CONFIG_PATH = Path(__file__).parent / "claude_agent_config.yaml"
 RUNNING = True
+
+# Set by main() after argument parsing
+_config_path: Path = DEFAULT_CONFIG_PATH
 
 
 # ---------------------------------------------------------------------------
@@ -42,17 +47,17 @@ RUNNING = True
 # ---------------------------------------------------------------------------
 
 def load_config() -> dict:
-    if not CONFIG_PATH.exists():
+    if not _config_path.exists():
         raise FileNotFoundError(
-            f"Config not found at {CONFIG_PATH}. "
-            "Copy agent/claude_agent_config.yaml.example and edit it."
+            f"Config not found at {_config_path}. "
+            "Copy agent/claude_agent_config.yaml and edit it."
         )
-    with open(CONFIG_PATH) as f:
+    with open(_config_path) as f:
         return yaml.safe_load(f)
 
 
 def save_config(cfg: dict):
-    with open(CONFIG_PATH, "w") as f:
+    with open(_config_path, "w") as f:
         yaml.dump(cfg, f, default_flow_style=False)
 
 
@@ -379,7 +384,15 @@ def cli_send(cfg: dict, recipient_name: str, message: str):
 # ---------------------------------------------------------------------------
 
 def main():
+    global _config_path
+
     parser = argparse.ArgumentParser(description="METATRON-FLEET Claude Agent")
+    parser.add_argument(
+        "--config",
+        metavar="PATH",
+        default=str(DEFAULT_CONFIG_PATH),
+        help="Path to agent config YAML (default: agent/claude_agent_config.yaml)",
+    )
     parser.add_argument(
         "--send",
         metavar="RECIPIENT_NAME",
@@ -392,6 +405,7 @@ def main():
     )
     args = parser.parse_args()
 
+    _config_path = Path(args.config)
     cfg = load_config()
 
     if args.send:

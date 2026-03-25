@@ -198,6 +198,18 @@ main {
 }
 .btn:hover { background: linear-gradient(135deg, #005080, #0080b0); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-voice {
+  padding: 7px 11px;
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.btn-voice.listening {
+  background: linear-gradient(135deg, #600020, #900030);
+  border-color: var(--red);
+  color: var(--red);
+  animation: pulse 1s infinite;
+}
 
 /* COMMAND TABLE */
 .cmd-table { width: 100%; border-collapse: collapse; font-size: 12px; }

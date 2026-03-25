@@ -340,6 +340,64 @@ function esc(str) {
     .replace(/"/g, '&quot;');
 }
 
+// ---- Voice Input ----
+const VoiceInput = (() => {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return { toggle() { alert('Voice input is not supported in this browser. Try Chrome or Edge.'); } };
+
+  const rec = new SR();
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+
+  let active = false;
+  let savedText = '';
+
+  rec.onstart = () => {
+    active = true;
+    savedText = document.getElementById('cmd-input').value;
+    const btn = document.getElementById('voice-btn');
+    btn.classList.add('listening');
+    btn.title = 'Listening\u2026 click to stop';
+  };
+
+  rec.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const input = document.getElementById('cmd-input');
+    input.value = savedText + final + interim;
+    if (final) savedText = savedText + final;
+  };
+
+  rec.onerror = (e) => {
+    if (e.error !== 'no-speech') console.warn('Voice error:', e.error);
+    stop();
+  };
+
+  rec.onend = () => stop();
+
+  function stop() {
+    active = false;
+    const btn = document.getElementById('voice-btn');
+    if (btn) {
+      btn.classList.remove('listening');
+      btn.title = 'Voice input';
+    }
+  }
+
+  return {
+    toggle() {
+      if (active) { rec.stop(); }
+      else { rec.start(); }
+    }
+  };
+})();
+window.VoiceInput = VoiceInput;
+
 // ---- Init ----
 async function init() {
   // Load initial fleet state

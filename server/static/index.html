@@ -58,6 +58,7 @@
             <option value="">-- Select Machine --</option>
           </select>
           <input type="text" class="cmd-input" id="cmd-input" placeholder="Enter command..." autocomplete="off">
+          <button class="btn btn-voice" id="voice-btn" title="Voice input" onclick="VoiceInput.toggle()">&#127908;</button>
           <input type="number" class="timeout-input" id="timeout-input" value="60" min="1" max="3600" title="Timeout (seconds)">
           <button class="btn" id="dispatch-btn" onclick="CommandPanel.dispatch()">Dispatch via OpenClaw</button>
         </div>

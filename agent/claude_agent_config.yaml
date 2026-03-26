@@ -1,0 +1,35 @@
+# METATRON-FLEET Claude Agent Configuration
+# Copy this file for each Claude instance and give it a unique agent_name.
+
+# URL of the METATRON-FLEET Command Center server
+server_url: "http://localhost:8000"
+
+# Human-readable name for this Claude agent instance.
+# Must be unique across all registered agents.
+# Examples: "claude-alpha", "claude-beta", "orchestrator", "worker"
+agent_name: "claude-alpha"
+
+# Anthropic API key for this agent.
+# Can also be set via the ANTHROPIC_API_KEY environment variable.
+# Leave blank to use the environment variable.
+anthropic_api_key: ""
+
+# Claude model to use for generating responses
+model: "claude-opus-4-6"
+
+# Maximum tokens per Claude API response
+max_tokens: 4096
+
+# Optional custom system prompt for this agent.
+# Leave blank to use the default (agent introduces itself by name).
+system_prompt: ""
+
+# Poll interval (seconds) for checking ICC messages
+poll_interval: 5
+
+# Heartbeat interval (seconds)
+heartbeat_interval: 15
+
+# --- Auto-populated on first registration (do not edit) ---
+# machine_id: ""
+# api_key: ""

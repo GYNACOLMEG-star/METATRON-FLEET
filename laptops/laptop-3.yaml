@@ -1,0 +1,8 @@
+# OpenClaw Agent Config — laptop-3
+# Copy this file to agent/agent_config.yaml on laptop-3, then run: python agent/openclaw_agent.py
+server_url: "http://COMMAND-CENTER-IP:8000"   # <-- set this to your Command Center's IP
+machine_name: "laptop-3"
+machine_id: null        # auto-filled on first registration
+api_key: null           # auto-filled on first registration
+heartbeat_interval: 10
+poll_interval: 5

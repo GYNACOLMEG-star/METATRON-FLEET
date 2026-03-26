@@ -22,6 +22,6 @@ async def fleet_websocket(ws: WebSocket):
     try:
         while True:
             # Keep connection alive; clients send pings
-            await asyncio.wait_for(ws.receive_text(), timeout=30)
+            await asyncio.wait_for(ws.receive_text(), timeout=3600)
     except (WebSocketDisconnect, asyncio.TimeoutError, Exception):
         hub.disconnect(ws)

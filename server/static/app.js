@@ -134,11 +134,7 @@ const MachineGrid = {
       return;
     }
 
-    el.innerHTML = state.machines.map(m => {
-      const cpu = m._cpu;
-      const mem = m._mem;
-      const disk = m._disk;
-      return `
+    el.innerHTML = state.machines.map(m => `
         <div class="machine-card ${m.status}" onclick="Sidebar.select('${m.id}')">
           <div class="card-name">${esc(m.name)}</div>
           <div class="card-host">${esc(m.hostname || m.ip_address || '—')}</div>
@@ -148,14 +144,35 @@ const MachineGrid = {
             ${metricRow('DISK', m._disk)}
           </div>
           <div class="card-last-seen">Last seen: ${fmtTime(m.last_seen)}</div>
+          <div class="card-actions">
+            <button class="btn-reset" onclick="event.stopPropagation(); MachineGrid.resetAgent('${m.id}', '${esc(m.name)}')">Reset Agent</button>
+          </div>
         </div>
-      `;
-    }).join('');
+      `).join('');
 
+    // Preserve current selection when re-rendering
+    const prevVal = sel.value;
     sel.innerHTML = '<option value="">-- Select Machine --</option>' +
       state.machines.map(m =>
         `<option value="${m.id}">${esc(m.name)} (${m.status})</option>`
       ).join('');
+    if (prevVal) sel.value = prevVal;
+  }
+,
+
+  async resetAgent(machineId, machineName) {
+    if (!confirm(`Remove "${machineName}" so it can re-register fresh?\n\nThe agent will automatically re-connect on its next poll.`)) return;
+    try {
+      const res = await fetch(`/api/machines/${machineId}`, { method: 'DELETE' });
+      if (!res.ok) { alert('Reset failed: ' + res.statusText); return; }
+      state.machines = state.machines.filter(m => m.id !== machineId);
+      if (state.selectedMachineId === machineId) state.selectedMachineId = null;
+      MachineGrid.render();
+      Sidebar.render();
+      Footer.update();
+    } catch (e) {
+      alert('Reset failed: ' + e.message);
+    }
   }
 };
 
@@ -207,12 +224,12 @@ function drawSparkline(canvasId, values, color) {
 
   ctx.clearRect(0, 0, W, H);
   if (!values || values.length < 2) {
-    ctx.fillStyle = '#1e2d45';
+    ctx.fillStyle = '#e2eaf4';
     ctx.fillRect(0, 0, W, H);
     return;
   }
 
-  ctx.fillStyle = '#0d1520';
+  ctx.fillStyle = '#f8fafc';
   ctx.fillRect(0, 0, W, H);
 
   const max = 100;
@@ -241,6 +258,21 @@ function drawSparkline(canvasId, values, color) {
 
 // ---- Command Panel ----
 const CommandPanel = {
+  _paused: false,
+
+  togglePause() {
+    this._paused = !this._paused;
+    const btn = document.getElementById('pause-btn');
+    if (this._paused) {
+      btn.textContent = '▶ Resume Updates';
+      btn.classList.add('paused');
+    } else {
+      btn.textContent = '⏸ Pause Updates';
+      btn.classList.remove('paused');
+      this.renderTable();
+    }
+  },
+
   async dispatch() {
     const machineId = document.getElementById('machine-select').value;
     const commandText = document.getElementById('cmd-input').value.trim();
@@ -282,6 +314,7 @@ const CommandPanel = {
   },
 
   renderTable() {
+    if (this._paused) return;
     const tbody = document.getElementById('cmd-table-body');
     if (!state.commands.length) {
       tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No commands dispatched yet</td></tr>';
@@ -340,6 +373,64 @@ function esc(str) {
     .replace(/"/g, '&quot;');
 }
 
+// ---- Voice Input ----
+const VoiceInput = (() => {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return { toggle() { alert('Voice input is not supported in this browser. Try Chrome or Edge.'); } };
+
+  const rec = new SR();
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+
+  let active = false;
+  let savedText = '';
+
+  rec.onstart = () => {
+    active = true;
+    savedText = document.getElementById('cmd-input').value;
+    const btn = document.getElementById('voice-btn');
+    btn.classList.add('listening');
+    btn.title = 'Listening\u2026 click to stop';
+  };
+
+  rec.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const input = document.getElementById('cmd-input');
+    input.value = savedText + final + interim;
+    if (final) savedText = savedText + final;
+  };
+
+  rec.onerror = (e) => {
+    if (e.error !== 'no-speech') console.warn('Voice error:', e.error);
+    stop();
+  };
+
+  rec.onend = () => stop();
+
+  function stop() {
+    active = false;
+    const btn = document.getElementById('voice-btn');
+    if (btn) {
+      btn.classList.remove('listening');
+      btn.title = 'Voice input';
+    }
+  }
+
+  return {
+    toggle() {
+      if (active) { rec.stop(); }
+      else { rec.start(); }
+    }
+  };
+})();
+window.VoiceInput = VoiceInput;
+
 // ---- Init ----
 async function init() {
   // Load initial fleet state
@@ -354,5 +445,18 @@ async function init() {
   await CommandPanel.loadRecent();
   FleetSocket.connect();
 }
+
+// Auto-pause updates while typing in the command input
+document.addEventListener('DOMContentLoaded', () => {
+  const cmdInput = document.getElementById('cmd-input');
+  if (cmdInput) {
+    cmdInput.addEventListener('focus', () => {
+      if (!CommandPanel._paused) CommandPanel.togglePause();
+    });
+    cmdInput.addEventListener('blur', () => {
+      if (CommandPanel._paused) CommandPanel.togglePause();
+    });
+  }
+});
 
 init();

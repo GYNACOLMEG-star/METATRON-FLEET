@@ -258,6 +258,21 @@ function drawSparkline(canvasId, values, color) {
 
 // ---- Command Panel ----
 const CommandPanel = {
+  _paused: false,
+
+  togglePause() {
+    this._paused = !this._paused;
+    const btn = document.getElementById('pause-btn');
+    if (this._paused) {
+      btn.textContent = '▶ Resume Updates';
+      btn.classList.add('paused');
+    } else {
+      btn.textContent = '⏸ Pause Updates';
+      btn.classList.remove('paused');
+      this.renderTable();
+    }
+  },
+
   async dispatch() {
     const machineId = document.getElementById('machine-select').value;
     const commandText = document.getElementById('cmd-input').value.trim();
@@ -299,6 +314,7 @@ const CommandPanel = {
   },
 
   renderTable() {
+    if (this._paused) return;
     const tbody = document.getElementById('cmd-table-body');
     if (!state.commands.length) {
       tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No commands dispatched yet</td></tr>';

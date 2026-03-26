@@ -446,4 +446,17 @@ async function init() {
   FleetSocket.connect();
 }
 
+// Auto-pause updates while typing in the command input
+document.addEventListener('DOMContentLoaded', () => {
+  const cmdInput = document.getElementById('cmd-input');
+  if (cmdInput) {
+    cmdInput.addEventListener('focus', () => {
+      if (!CommandPanel._paused) CommandPanel.togglePause();
+    });
+    cmdInput.addEventListener('blur', () => {
+      if (CommandPanel._paused) CommandPanel.togglePause();
+    });
+  }
+});
+
 init();

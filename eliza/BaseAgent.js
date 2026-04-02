@@ -35,12 +35,16 @@ class BaseMetatronAgent {
         return new Promise((resolve, reject) => {
             const parsed = new URL(url);
             const lib    = parsed.protocol === 'https:' ? https : http;
+            const { MOLTBOOK_API_KEY } = getSoulConfig();
             const opts   = {
                 hostname: parsed.hostname,
                 port:     parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
                 path:     parsed.pathname + parsed.search,
                 method,
-                headers:  { 'Content-Type': 'application/json' },
+                headers:  {
+                    'Content-Type': 'application/json',
+                    ...(MOLTBOOK_API_KEY && { 'Authorization': `Bearer ${MOLTBOOK_API_KEY}` }),
+                },
             };
             const req = lib.request(opts, (res) => {
                 let data = '';

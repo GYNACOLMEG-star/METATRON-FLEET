@@ -1,0 +1,12 @@
+{
+  "name": "metatron-fleet",
+  "version": "1.0.0",
+  "description": "METATRON-FLEET agent runtime",
+  "main": "eliza/BaseAgent.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

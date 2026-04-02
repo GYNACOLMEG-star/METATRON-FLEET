@@ -2,12 +2,11 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-import aiosqlite
 from fastapi import APIRouter, HTTPException
 
 from server.auth import verify_api_key
-from server.config import settings
 from server.database import (
+    connect_db,
     fetch_command,
     fetch_commands,
     fetch_machine,
@@ -23,15 +22,9 @@ from server.ws.hub import hub
 router = APIRouter(prefix="/api/commands", tags=["commands"])
 
 
-async def _get_db():
-    db = await aiosqlite.connect(settings.DB_PATH)
-    db.row_factory = aiosqlite.Row
-    return db
-
-
 @router.post("/dispatch", response_model=CommandResponse)
 async def dispatch_command(req: CommandDispatchRequest):
-    db = await _get_db()
+    db = await connect_db()
     try:
         machine = await fetch_machine(db, req.machine_id)
         if not machine:
@@ -60,7 +53,7 @@ async def dispatch_command(req: CommandDispatchRequest):
 
 @router.get("", response_model=list[CommandResponse])
 async def list_commands(machine_id: Optional[str] = None, status: Optional[str] = None, limit: int = 50):
-    db = await _get_db()
+    db = await connect_db()
     try:
         commands = await fetch_commands(db, machine_id=machine_id, status=status, limit=limit)
         return [CommandResponse(**c) for c in commands]
@@ -70,7 +63,7 @@ async def list_commands(machine_id: Optional[str] = None, status: Optional[str] 
 
 @router.get("/{command_id}", response_model=CommandResponse)
 async def get_command(command_id: str):
-    db = await _get_db()
+    db = await connect_db()
     try:
         command = await fetch_command(db, command_id)
         if not command:
@@ -82,7 +75,7 @@ async def get_command(command_id: str):
 
 @router.post("/{command_id}/result")
 async def command_result(command_id: str, payload: CommandResultPayload):
-    db = await _get_db()
+    db = await connect_db()
     try:
         command = await fetch_command(db, command_id)
         if not command:
@@ -114,7 +107,7 @@ async def command_result(command_id: str, payload: CommandResultPayload):
 # Agent polls this endpoint for pending commands
 @router.get("/pending/{machine_id}")
 async def pending_commands(machine_id: str, api_key: str):
-    db = await _get_db()
+    db = await connect_db()
     try:
         machine = await fetch_machine(db, machine_id)
         if not machine:

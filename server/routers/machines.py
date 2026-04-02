@@ -1,15 +1,12 @@
-import json
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-
-import aiosqlite
+from fastapi import APIRouter, HTTPException, Request
 
 from server.auth import generate_api_key, hash_api_key, verify_api_key
-from server.config import settings
 from server.database import (
+    connect_db,
     delete_machine,
     fetch_all_machines,
     fetch_machine,
@@ -24,25 +21,14 @@ from server.models import (
     MachineRegisterResponse,
     MachineResponse,
 )
-from server.services import metrics_store
 from server.ws.hub import hub
 
 router = APIRouter(prefix="/api/machines", tags=["machines"])
 
 
-def get_db_path():
-    return settings.DB_PATH
-
-
-async def _get_db(db_path: str):
-    db = await aiosqlite.connect(db_path)
-    db.row_factory = aiosqlite.Row
-    return db
-
-
 @router.post("/register", response_model=MachineRegisterResponse)
 async def register_machine(req: MachineRegisterRequest, request: Request):
-    db = await _get_db(settings.DB_PATH)
+    db = await connect_db()
     try:
         api_key = generate_api_key()
         machine_id = str(uuid.uuid4())
@@ -73,7 +59,7 @@ async def register_machine(req: MachineRegisterRequest, request: Request):
 
 @router.get("", response_model=list[MachineResponse])
 async def list_machines():
-    db = await _get_db(settings.DB_PATH)
+    db = await connect_db()
     try:
         machines = await fetch_all_machines(db)
         return [MachineResponse(**m) for m in machines]
@@ -83,7 +69,7 @@ async def list_machines():
 
 @router.get("/{machine_id}")
 async def get_machine(machine_id: str):
-    db = await _get_db(settings.DB_PATH)
+    db = await connect_db()
     try:
         machine = await fetch_machine(db, machine_id)
         if not machine:
@@ -96,7 +82,7 @@ async def get_machine(machine_id: str):
 
 @router.delete("/{machine_id}")
 async def deregister_machine(machine_id: str):
-    db = await _get_db(settings.DB_PATH)
+    db = await connect_db()
     try:
         machine = await fetch_machine(db, machine_id)
         if not machine:
@@ -109,7 +95,7 @@ async def deregister_machine(machine_id: str):
 
 @router.post("/{machine_id}/heartbeat")
 async def heartbeat(machine_id: str, payload: HeartbeatPayload, request: Request):
-    db = await _get_db(settings.DB_PATH)
+    db = await connect_db()
     try:
         machine = await fetch_machine(db, machine_id)
         if not machine:

@@ -1,5 +1,12 @@
+from datetime import datetime, timezone
+
 import aiosqlite
 from server.config import settings
+
+
+def utcnow() -> str:
+    """Return the current UTC time as an ISO 8601 string."""
+    return datetime.now(timezone.utc).isoformat()
 
 DB_PATH = settings.DB_PATH
 

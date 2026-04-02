@@ -1,7 +1,7 @@
-# OpenClaw Agent Config — laptop-1
-# Copy this file to agent/agent_config.yaml on laptop-1, then run: python agent/openclaw_agent.py
+# OpenClaw Agent Config — template
+# Copy this file to agent/agent_config.yaml on each laptop, then run: python agent/openclaw_agent.py
 server_url: "http://COMMAND-CENTER-IP:8000"   # <-- set this to your Command Center's IP
-machine_name: "laptop-1"
+machine_name: "laptop-N"                       # <-- replace N with the laptop number
 machine_id: null        # auto-filled on first registration
 api_key: null           # auto-filled on first registration
 heartbeat_interval: 10

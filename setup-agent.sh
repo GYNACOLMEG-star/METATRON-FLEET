@@ -28,12 +28,6 @@ if [[ ! "$LAPTOP_NUM" =~ ^[1-3]$ ]]; then
 fi
 
 MACHINE_NAME="laptop-${LAPTOP_NUM}"
-CONFIG_SRC="$(dirname "$0")/laptops/laptop-${LAPTOP_NUM}.yaml"
-
-if [[ ! -f "$CONFIG_SRC" ]]; then
-    echo "Error: config file not found: $CONFIG_SRC"
-    exit 1
-fi
 
 echo "==> Setting up OpenClaw Agent: $MACHINE_NAME → $SERVER_URL"
 

@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException
@@ -7,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 from server.auth import verify_api_key
 from server.database import (
     connect_db,
+    utcnow,
     fetch_command,
     fetch_commands,
     fetch_machine,
@@ -18,6 +18,8 @@ from server.database import (
 from server.models import CommandDispatchRequest, CommandResponse, CommandResultPayload
 from server.services.openclaw import openclaw
 from server.ws.hub import hub
+
+MAX_OUTPUT = 65536  # match agent/executor.py truncation limit
 
 router = APIRouter(prefix="/api/commands", tags=["commands"])
 
@@ -31,7 +33,7 @@ async def dispatch_command(req: CommandDispatchRequest):
             raise HTTPException(status_code=404, detail="Machine not found")
 
         command_id = str(uuid.uuid4())
-        now = datetime.now(timezone.utc).isoformat()
+        now = utcnow()
         cmd = {
             "id": command_id,
             "machine_id": req.machine_id,
@@ -87,14 +89,14 @@ async def command_result(command_id: str, payload: CommandResultPayload):
         if not verify_api_key(payload.api_key, machine["api_key_hash"]):
             raise HTTPException(status_code=401, detail="Invalid API key")
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = utcnow()
         status = "completed" if payload.exit_code == 0 else "failed"
         result = {
             "status": status,
             "completed_at": now,
             "exit_code": payload.exit_code,
-            "stdout": payload.stdout[:65536],
-            "stderr": payload.stderr[:65536],
+            "stdout": payload.stdout[:MAX_OUTPUT],
+            "stderr": payload.stderr[:MAX_OUTPUT],
         }
         await update_command_result(db, command_id, result)
         updated = await fetch_command(db, command_id)
@@ -123,7 +125,7 @@ async def pending_commands(machine_id: str, api_key: str):
         db_ids = {c["id"] for c in db_pending}
         all_ids = list(dict.fromkeys(command_ids + [cid for cid in db_ids if cid not in command_ids]))
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = utcnow()
         results = []
         for cid in all_ids[:5]:
             cmd = await fetch_command(db, cid)

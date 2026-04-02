@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
@@ -7,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request
 from server.auth import generate_api_key, hash_api_key, verify_api_key
 from server.database import (
     connect_db,
+    utcnow,
     delete_machine,
     fetch_all_machines,
     fetch_machine,
@@ -32,7 +32,7 @@ async def register_machine(req: MachineRegisterRequest, request: Request):
     try:
         api_key = generate_api_key()
         machine_id = str(uuid.uuid4())
-        now = datetime.now(timezone.utc).isoformat()
+        now = utcnow()
         client_ip = request.client.host if request.client else None
 
         machine_record = {
@@ -103,7 +103,7 @@ async def heartbeat(machine_id: str, payload: HeartbeatPayload, request: Request
         if not verify_api_key(payload.api_key, machine["api_key_hash"]):
             raise HTTPException(status_code=401, detail="Invalid API key")
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = utcnow()
         await update_machine_heartbeat(db, machine_id, now, "online")
 
         if payload.metrics:

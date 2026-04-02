@@ -5,12 +5,12 @@ Pull-model: agents poll for work rather than server pushing.
 """
 import asyncio
 import logging
-from datetime import datetime, timezone
 from typing import Dict, List
 
 import aiosqlite
 
 from server.config import settings
+from server.database import utcnow
 
 logger = logging.getLogger("openclaw")
 
@@ -84,7 +84,7 @@ class OpenClawEngine:
         while self.active:
             await asyncio.sleep(15)
             try:
-                now = datetime.now(timezone.utc).isoformat()
+                now = utcnow()
                 async with aiosqlite.connect(db_path) as db:
                     # Mark commands timed out if sent more than timeout_seconds ago
                     await db.execute(

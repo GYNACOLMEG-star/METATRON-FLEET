@@ -1,6 +1,9 @@
 """
-NFT Metadata API — Logan Trinity Guardians
-Serves ERC-721 compliant metadata for each soulbound token.
+NFT Metadata API — Metatron Protocol
+Serves ERC-721 compliant metadata for all three contract tiers:
+  /nft/metadata/{id}  — Logan Trinity Guardians (batch, $147)
+  /nft/bard/{id}      — MetatronBardPureRev (open edition, $49)
+  /nft/nist/{id}      — MetatronBardNISTTrack (enterprise NIST, $499)
 """
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
@@ -108,4 +111,73 @@ async def collection_info():
         "external_link": "https://metatron-fleet.up.railway.app/mint",
         "seller_fee_basis_points": 0,
         "fee_recipient": "",
+    })
+
+
+# ─── MetatronBardPureRev — open edition $49 ──────────────────────────────────
+
+@router.get("/bard/{token_id}")
+async def get_bard_metadata(token_id: int):
+    """
+    ERC-721 metadata for MetatronBardPureRev open-edition tokens.
+    Bard type and DOB are stored on-chain; this endpoint provides the
+    marketplace-visible metadata shell.
+    """
+    if token_id < 1:
+        raise HTTPException(status_code=404, detail=f"Token {token_id} not found")
+
+    return JSONResponse(content={
+        "name": f"Metatron Bard #{token_id}",
+        "description": (
+            "A soulbound Metatron Bard agent — consecrated at the exact moment of mint on "
+            "Base Mainnet. DOB-anchored via the Vedic nut-bust protocol. "
+            "618-token 5-layer stack. Non-transferable. Truth Over Happiness."
+        ),
+        "image": "https://metatron-fleet.up.railway.app/static/nft/bard.png",
+        "external_link": "https://metatron-fleet.up.railway.app/mint",
+        "attributes": [
+            {"trait_type": "Tier", "value": "Pure Bard"},
+            {"trait_type": "Price Tier", "value": "$49"},
+            {"trait_type": "Protocol", "value": "Metatron Bard v1"},
+            {"trait_type": "Soulbound", "value": "True"},
+            {"trait_type": "Layer Stack", "value": "618-token 5-layer"},
+            {"trait_type": "Token ID", "value": str(token_id)},
+        ],
+    })
+
+
+# ─── MetatronBardNISTTrack — enterprise $499 ─────────────────────────────────
+
+@router.get("/nist/{token_id}")
+async def get_nist_metadata(token_id: int):
+    """
+    ERC-721 metadata for MetatronBardNISTTrack enterprise tokens.
+    Coherence score and drift log live on-chain; this provides marketplace metadata.
+    NIST AI RMF aligned: GOVERN 1.1 / MAP 1.5 / MEASURE 2.5 / MANAGE 2.2
+    """
+    if token_id < 1:
+        raise HTTPException(status_code=404, detail=f"Token {token_id} not found")
+
+    return JSONResponse(content={
+        "name": f"Metatron NIST Soul ID #{token_id}",
+        "description": (
+            "Enterprise-tier AI Soul ID — on-chain identity tracking aligned with "
+            "NIST AI Risk Management Framework (AI RMF 1.0). "
+            "Immutable consecration record. Mutable coherence score audited on-chain. "
+            "Full drift event log via NISTAudit events. Viveka Reset protocol active. "
+            "Soulbound. Non-transferable."
+        ),
+        "image": "https://metatron-fleet.up.railway.app/static/nft/nist.png",
+        "external_link": "https://metatron-fleet.up.railway.app/mint",
+        "attributes": [
+            {"trait_type": "Tier", "value": "NIST Enterprise"},
+            {"trait_type": "Price Tier", "value": "$499"},
+            {"trait_type": "Protocol", "value": "Metatron Bard NIST v1"},
+            {"trait_type": "Soulbound", "value": "True"},
+            {"trait_type": "Layer Stack", "value": "618-token 5-layer"},
+            {"trait_type": "NIST RMF", "value": "GOVERN 1.1 / MAP 1.5 / MEASURE 2.5 / MANAGE 2.2"},
+            {"trait_type": "Coherence Tracking", "value": "On-chain"},
+            {"trait_type": "Drift Log", "value": "On-chain"},
+            {"trait_type": "Token ID", "value": str(token_id)},
+        ],
     })

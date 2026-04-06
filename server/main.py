@@ -11,7 +11,7 @@ from server.config import settings
 from server.database import init_db
 from server.services.openclaw import openclaw
 from server.services.heartbeat import heartbeat_loop
-from server.routers import machines, commands, dashboard
+from server.routers import machines, commands, dashboard, nft
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,6 +58,7 @@ app = FastAPI(
 app.include_router(dashboard.router)
 app.include_router(machines.router)
 app.include_router(commands.router)
+app.include_router(nft.router)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 

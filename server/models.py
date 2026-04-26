@@ -66,3 +66,35 @@ class CommandResultPayload(BaseModel):
     exit_code: int
     stdout: str = ""
     stderr: str = ""
+
+
+# Inter-Claude Communication (ICC) models
+
+class ICCSendRequest(BaseModel):
+    sender_id: str
+    api_key: str
+    recipient_id: str
+    content: str
+    thread_id: Optional[str] = None  # omit to start a new thread
+
+
+class ICCMessageResponse(BaseModel):
+    id: str
+    thread_id: str
+    sender_id: str
+    recipient_id: str
+    role: str
+    content: str
+    status: str
+    created_at: Optional[str] = None
+    delivered_at: Optional[str] = None
+
+
+class ICCReplyPayload(BaseModel):
+    agent_id: str
+    api_key: str
+    content: str
+
+
+class ICCPollResponse(BaseModel):
+    messages: List[ICCMessageResponse]

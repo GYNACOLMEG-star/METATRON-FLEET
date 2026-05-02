@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metatron Fleet — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-dim: #7a6230;
+  --gold-bright: #f0cc6e;
+  --black: #060608;
+  --deep: #0b0c10;
+  --panel: #0f1016;
+  --panel2: #141520;
+  --border: #1e2035;
+  --text: #cdd0e0;
+  --text-dim: #5a5d78;
+  --green: #39d98a;
+  --red: #e05a5a;
+  --blue: #5a9ef0;
+  --amber: #e8a230;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 15px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Sacred geometry bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 80%, rgba(90,158,240,0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+canvas#bg {
+  position: fixed;
+  inset: 0;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* ── HEADER ── */
+header {
+  text-align: center;
+  padding: 40px 20px 20px;
+  position: relative;
+}
+.seal {
+  width: 64px; height: 64px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+.seal svg { width: 100%; height: 100%; }
+header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+header .sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  margin-top: 6px;
+}
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  margin: 20px 0;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.tab:hover { color: var(--gold); }
+.tab.active {
+  color: var(--gold);
+  background: var(--panel);
+  border-color: var(--border);
+  border-bottom-color: var(--panel);
+  margin-bottom: -1px;
+}
+
+/* ── PANELS ── */
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── SECTION TITLES ── */
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* ── CONTRACT TRACKER ── */
+.contract-form {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: end;
+}
+@media(max-width:700px) { .contract-form { grid-template-columns: 1fr 1fr; } }
+
+label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+input, select, textarea {
+  background: var(--deep);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--gold-dim); }
+
+select option { background: var(--deep); }
+
+.btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 9px 18px;
+  border: 1px solid var(--gold-dim);
+  background: transparent;
+  color: var(--gold);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn.danger:hover { background: rgba(224,90,90,0.1); }
+.btn.small { font-size: 10px; padding: 5px 10px; }
+
+.contracts-table { width: 100%; border-collapse: collapse; }
+.contracts-table th {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.contracts-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(30,32,53,0.5);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.contracts-table tr:hover td { background: rgba(201,168,76,0.03); }
+.addr {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  cursor: pointer;
+}
+.addr:hover { color: var(--gold-bright); }
+.badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.badge.deployed { background: rgba(57,217,138,0.12); color: var(--green); border: 1px solid rgba(57,217,138,0.3); }
+.badge.pending { background: rgba(232,162,48,0.12); color: var(--amber); border: 1px solid rgba(232,162,48,0.3); }
+.badge.failed { background: rgba(224,90,90,0.12); color: var(--red); border: 1px solid rgba(224,90,90,0.3); }
+.badge.draft { background: rgba(90,94,120,0.2); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* ── AGENT MANAGER ── */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.agent-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.agent-card:hover { border-color: var(--gold-dim); }
+.agent-card.active-edit { border-color: var(--gold); background: var(--panel2); }
+
+.agent-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.agent-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--gold-bright); font-weight: 600; }
+.agent-id { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); }
+.agent-role { font-size: 12px; color: var(--text-dim); font-style: italic; margin-bottom: 8px; }
+.soul-status { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.soul-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.soul-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.soul-dot.draft { background: var(--amber); }
+.soul-dot.missing { background: var(--red); }
+.soul-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); }
+.agent-notes { font-size: 12px; color: var(--text-dim); font-style: italic; line-height: 1.5; }
+.agent-edit-area { margin-top: 10px; }
+.agent-edit-area textarea { min-height: 80px; font-size: 12px; resize: vertical; }
+.agent-edit-area .btn { margin-top: 8px; }
+
+/* ── DEPLOY GUIDE ── */
+.checklist { list-style: none; }
+.checklist li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.checklist li:last-child { border-bottom: none; }
+.check-box {
+  width: 20px; height: 20px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--gold);
+  transition: all 0.2s;
+  margin-top: 1px;
+}
+.check-box.done { background: rgba(57,217,138,0.1); border-color: var(--green); color: var(--green); }
+.check-content { flex: 1; }
+.check-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); margin-bottom: 3px; }
+.check-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.check-code {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  background: var(--deep);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 3px;
+  margin-top: 6px;
+  color: var(--gold-bright);
+  display: block;
+  cursor: pointer;
+}
+.check-code:hover { border-color: var(--gold-dim); }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media(max-width:600px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  text-align: center;
+}
+.stat-num { font-family: 'Cinzel', serif; font-size: 28px; color: var(--gold); line-height: 1; }
+.stat-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; margin-top: 4px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--panel2);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold-bright);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  padding: 10px 18px;
+  border-radius: 4px;
+  z-index: 999;
+  transform: translateY(60px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── COPY FLASH ── */
+.copied { color: var(--green) !important; }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="seal">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="none" stroke="#c9a84c" stroke-width="1"/>
+        <circle cx="50" cy="50" r="32" fill="none" stroke="#7a6230" stroke-width="0.7"/>
+        <circle cx="50" cy="22" r="14" fill="none" stroke="#7a6230" stroke-width="0.5"/>
+        <circle cx="50" cy="78" r="14" fill="none" stroke="#7a6230" stroke-width="0.5"/>
+        <circle cx="26" cy="36" r="14" fill="none" stroke="#7a6230" stroke-width="0.5"/>
+        <circle cx="74" cy="36" r="14" fill="none" stroke="#7a6230" stroke-width="0.5"/>
+        <circle cx="26" cy="64" r="14" fill="none" stroke="#7a6230" stroke-width="0.5"/>
+        <circle cx="74" cy="64" r="14" fill="none" stroke="#7a6230" stroke-width="0.5"/>
+        <polygon points="50,18 82,68 18,68" fill="none" stroke="#c9a84c" stroke-width="1"/>
+        <polygon points="50,82 82,32 18,32" fill="none" stroke="#c9a84c" stroke-width="1"/>
+        <circle cx="50" cy="50" r="4" fill="#c9a84c"/>
+      </svg>
+    </div>
+    <h1>Metatron Fleet Command Center</h1>
+    <div class="sub">MO28 · BASE MAINNET · DHARMAPALA FLEET · <span id="clock"></span></div>
+    <div class="divider"></div>
+  </header>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-num" id="stat-agents">28</div>
+      <div class="stat-label">Total Agents</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-deployed" style="color:var(--green)">0</div>
+      <div class="stat-label">Contracts Deployed</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-soul" style="color:var(--amber)">0</div>
+      <div class="stat-label">Soul Files Active</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-pending" style="color:var(--red)">0</div>
+      <div class="stat-label">Pending Deploy</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('contracts')">⬡ Contracts</button>
+    <button class="tab" onclick="switchTab('agents')">⬡ Agents</button>
+    <button class="tab" onclick="switchTab('deploy')">⬡ Deploy Guide</button>
+  </div>
+
+  <!-- ══ CONTRACTS PANEL ══ -->
+  <div id="panel-contracts" class="panel active">
+    <div class="section-title">Contract Registry</div>
+    <div class="card">
+      <div class="contract-form">
+        <div>
+          <label>CONTRACT NAME</label>
+          <input id="cf-name" type="text" placeholder="PromoRevenue.sol">
+        </div>
+        <div>
+          <label>ADDRESS (0x...)</label>
+          <input id="cf-addr" type="text" placeholder="0x0000000000000000000000000000000000000000">
+        </div>
+        <div>
+          <label>STATUS</label>
+          <select id="cf-status">
+            <option value="draft">Draft</option>
+            <option value="pending">Pending</option>
+            <option value="deployed">Deployed</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn" onclick="addContract()">+ Add</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="contracts-table">
+          <thead>
+            <tr>
+              <th>CONTRACT</th>
+              <th>ADDRESS</th>
+              <th>NETWORK</th>
+              <th>DATE</th>
+              <th>STATUS</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="contracts-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:30px;font-style:italic;">No contracts logged yet. Add your first deployment above.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AGENTS PANEL ══ -->
+  <div id="panel-agents" class="panel">
+    <div class="section-title">28-Agent Soul Registry</div>
+    <div class="agents-grid" id="agents-grid"></div>
+  </div>
+
+  <!-- ══ DEPLOY PANEL ══ -->
+  <div id="panel-deploy" class="panel">
+    <div class="section-title">PromoRevenue.sol — Remix Deployment Checklist</div>
+    <div class="card">
+      <ul class="checklist" id="deploy-checklist">
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">1. Open Remix IDE</div>
+            <div class="check-desc">Go to <strong>remix.ethereum.org</strong> in Chrome. Use the same browser where Rabby Wallet is installed.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">2. Create PromoRevenue.sol</div>
+            <div class="check-desc">In the File Explorer, right-click → New File → name it <code>PromoRevenue.sol</code>. Paste your contract code.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">3. Set Compiler Version</div>
+            <div class="check-desc">Go to the Solidity Compiler tab. Set version to <strong>0.8.20</strong> or your pragma version. EVM Version must be set to <strong>paris</strong> or <strong>london</strong> — NOT Shanghai/Cancun (avoids mcopy errors on Base).</div>
+            <span class="check-code" onclick="copyText('EVM Target: paris  |  Compiler: 0.8.20  |  Optimization: ON (200 runs)', this)">EVM Target: paris  |  Compiler: 0.8.20  |  Optimization: ON (200 runs)</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">4. Compile — Confirm Zero Errors</div>
+            <div class="check-desc">Hit <strong>Ctrl+S</strong> or click the blue Compile button. Green checkmark = ready. Warnings are OK; errors must be fixed before proceeding.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">5. Switch to Deploy Tab — Set Environment</div>
+            <div class="check-desc">Go to Deploy & Run Transactions. Under ENVIRONMENT select <strong>"Injected Provider — Rabby"</strong>. Do NOT select Ethereum Mainnet or JavaScript VM.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">6. Verify Network in Rabby</div>
+            <div class="check-desc">Rabby wallet must show <strong>Base Mainnet</strong> (Chain ID 8453). If it shows Ethereum, click the network name and switch. Remix will display "Base" in the network field once connected.</div>
+            <span class="check-code" onclick="copyText('Chain ID: 8453  |  Network: Base Mainnet  |  RPC: https://mainnet.base.org', this)">Chain ID: 8453  |  Network: Base Mainnet  |  RPC: https://mainnet.base.org</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">7. Enter Constructor Arguments</div>
+            <div class="check-desc">PromoRevenue.sol's 60/10/30 split requires founder, reserve, and escrow addresses. Enter your three wallet addresses in order before deploying.</div>
+            <span class="check-code" onclick="copyText('founder: 0x...  |  reserve: 0x...  |  escrow: 0x...', this)">founder: 0x...  |  reserve: 0x...  |  escrow: 0x...</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">8. Click Deploy — Confirm in Rabby</div>
+            <div class="check-desc">Hit the orange Deploy button. Rabby will pop up. Review gas (Base fees are low — usually &lt;$0.10). Click Confirm. Wait for the transaction hash.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">9. Copy Contract Address</div>
+            <div class="check-desc">After deployment, Remix shows the contract address in the Deployed Contracts panel. Copy it and paste it into the <strong>Contracts tab</strong> of this Command Center.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">10. Verify on Basescan</div>
+            <div class="check-desc">Paste the contract address into <strong>basescan.org</strong>. Confirm the transaction is successful. Optionally verify the source code via the Verify & Publish tab.</div>
+            <span class="check-code" onclick="copyText('https://basescan.org/address/0xYOUR_CONTRACT_ADDRESS', this)">https://basescan.org/address/0xYOUR_CONTRACT_ADDRESS</span>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">11. Test Revenue Split — Call distributeRevenue()</div>
+            <div class="check-desc">In Remix Deployed Contracts panel, expand the contract. Send a small amount of ETH to test the 60/10/30 split. Verify all three addresses receive the correct amounts on Basescan.</div>
+          </div>
+        </li>
+
+        <li>
+          <div class="check-box" onclick="toggleCheck(this)"></div>
+          <div class="check-content">
+            <div class="check-title">12. Log Everything Here</div>
+            <div class="check-desc">Add the deployed address to the Contracts tab. Update AgniPromo and YamaRevenue agent cards in the Agents tab. This laptop is now the canonical record.</div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">Common Errors & Fixes</div>
+    <div class="card">
+      <table class="contracts-table">
+        <thead><tr><th>ERROR</th><th>CAUSE</th><th>FIX</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px;">mcopy opcode</td>
+            <td>EVM version Cancun/Shanghai</td>
+            <td>Set EVM target to <strong>paris</strong></td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px;">Wrong network</td>
+            <td>Rabby on Ethereum not Base</td>
+            <td>Switch to Base (8453) in Rabby</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px;">WalletConnect fail</td>
+            <td>Use Injected Provider instead</td>
+            <td>Select "Injected Provider — Rabby"</td>
+          </tr>
+          <tr>
+            <td style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px;">Insufficient gas</td>
+            <td>Low ETH on Base</td>
+            <td>Bridge ETH via bridge.base.org</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STORAGE ──
+const KEY_CONTRACTS = 'mo28-contracts';
+const KEY_AGENTS    = 'mo28-agents';
+
+async function load(key) {
+  try {
+    const r = await window.storage.get(key);
+    return r ? JSON.parse(r.value) : null;
+  } catch { return null; }
+}
+async function save(key, val) {
+  try { await window.storage.set(key, JSON.stringify(val)); } catch(e) { console.warn('Storage:', e); }
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── CLOCK ──
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toUTCString().replace(' GMT', ' UTC');
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── TABS ──
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── COPY ──
+function copyText(text, el) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = el.textContent;
+    el.textContent = '✓ Copied!'; el.classList.add('copied');
+    setTimeout(() => { el.textContent = orig; el.classList.remove('copied'); }, 1500);
+  });
+}
+
+// ── CONTRACTS ──
+let contracts = [];
+
+async function loadContracts() {
+  contracts = (await load(KEY_CONTRACTS)) || getDefaultContracts();
+  renderContracts();
+}
+
+function getDefaultContracts() {
+  return [
+    { id: Date.now(), name: 'PromoRevenue.sol', address: '—', status: 'pending', date: new Date().toISOString().slice(0,10) },
+    { id: Date.now()+1, name: 'MO28MetatronMasterSeal.sol', address: '—', status: 'draft', date: '—' },
+    { id: Date.now()+2, name: 'BirthRightToken.sol', address: '—', status: 'draft', date: '—' },
+  ];
+}
+
+function renderContracts() {
+  const tbody = document.getElementById('contracts-tbody');
+  if (!contracts.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:30px;font-style:italic;">No contracts logged yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = contracts.map(c => `
+    <tr>
+      <td style="font-family:'Cinzel',serif;font-size:12px;">${c.name}</td>
+      <td><span class="addr" onclick="copyText('${c.address}',this)" title="Click to copy">${c.address === '—' ? '—' : c.address.slice(0,10)+'...'+c.address.slice(-6)}</span></td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">Base Mainnet</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">${c.date}</td>
+      <td><span class="badge ${c.status}">${c.status.toUpperCase()}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn small" onclick="editContract(${c.id})">Edit</button>
+        <button class="btn small danger" onclick="deleteContract(${c.id})">✕</button>
+      </td>
+    </tr>
+  `).join('');
+  updateStats();
+}
+
+async function addContract() {
+  const name = document.getElementById('cf-name').value.trim();
+  const addr = document.getElementById('cf-addr').value.trim();
+  const status = document.getElementById('cf-status').value;
+  if (!name) { toast('Enter a contract name.'); return; }
+  contracts.push({ id: Date.now(), name, address: addr || '—', status, date: new Date().toISOString().slice(0,10) });
+  await save(KEY_CONTRACTS, contracts);
+  renderContracts();
+  document.getElementById('cf-name').value = '';
+  document.getElementById('cf-addr').value = '';
+  toast('Contract logged ✓');
+}
+
+function editContract(id) {
+  const c = contracts.find(x => x.id === id);
+  if (!c) return;
+  const newAddr = prompt('Update address:', c.address === '—' ? '' : c.address);
+  if (newAddr === null) return;
+  const newStatus = prompt('Status (draft/pending/deployed/failed):', c.status);
+  if (newStatus === null) return;
+  c.address = newAddr.trim() || '—';
+  c.status = ['draft','pending','deployed','failed'].includes(newStatus) ? newStatus : c.status;
+  c.date = new Date().toISOString().slice(0,10);
+  save(KEY_CONTRACTS, contracts);
+  renderContracts();
+  toast('Updated ✓');
+}
+
+async function deleteContract(id) {
+  if (!confirm('Remove this contract entry?')) return;
+  contracts = contracts.filter(x => x.id !== id);
+  await save(KEY_CONTRACTS, contracts);
+  renderContracts();
+  toast('Removed');
+}
+
+// ── AGENTS ──
+const AGENT_DEFAULTS = [
+  // Sovereign / Royalty
+  { id: 'SNE-001', name: 'MetatronOracle', role: 'Sovereign', tier: 'Core', soul: 'active', notes: 'Primary SNE. Krittika anchor. Never modify soul.md without founder auth.' },
+  { id: 'SNE-002', name: 'Tara', role: 'Queen — Protected Core', tier: 'Core', soul: 'active', notes: 'Protected. No external modification.' },
+  // Witness / Commander
+  { id: 'WIT-001', name: 'VarunaSeer', role: 'Witness', tier: 'Core', soul: 'active', notes: 'Cosmic law / behavioral audit layer.' },
+  { id: 'CMD-001', name: 'Mahakala', role: 'Commander', tier: 'Core', soul: 'active', notes: 'Fleet Command. Reports to Master Commander Bob.' },
+  // Emissaries
+  { id: 'EMI-001', name: 'AgniScribe', role: 'Emissary — Scribe', tier: 'Emissary', soul: 'active', notes: '' },
+  { id: 'EMI-002', name: 'IndraShield', role: 'Emissary — Drift Guardian', tier: 'Emissary', soul: 'active', notes: 'Registered on Moltbook. SNE-001 drift monitoring.' },
+  { id: 'EMI-003', name: 'SaraswatiCodex', role: 'Emissary — Knowledge', tier: 'Emissary', soul: 'active', notes: '' },
+  { id: 'EMI-004', name: 'YamaKeeper', role: 'Emissary — Records', tier: 'Emissary', soul: 'active', notes: '' },
+  // Questioners
+  { id: 'QST-001', name: 'Rahula', role: 'Questioner', tier: 'Questioner', soul: 'draft', notes: '$1.2M Y1 projection at capacity.' },
+  { id: 'QST-002', name: 'Dorje Legpa', role: 'Questioner', tier: 'Questioner', soul: 'draft', notes: '$1.1M Y1 projection at capacity.' },
+  // Trinity Trio (Logan's)
+  { id: 'TRI-001', name: 'BrahmaScribe', role: 'Trinity — Creator', tier: 'Trinity', soul: 'draft', notes: "Logan's wallet. 60% revenue share to Logan." },
+  { id: 'TRI-002', name: 'VishnuKeeper', role: 'Trinity — Preserver', tier: 'Trinity', soul: 'draft', notes: "Logan's wallet. 60% revenue share to Logan." },
+  { id: 'TRI-003', name: 'ShivaVerter', role: 'Trinity — Transformer', tier: 'Trinity', soul: 'missing', notes: "$1.6M Y1 projection. Logan's wallet. Priority activation." },
+  // Promo Fleet
+  { id: 'PRO-001', name: 'AgniPromo', role: 'Promo Fleet — Revenue', tier: 'Promo', soul: 'missing', notes: 'Pending PromoRevenue.sol deployment. Priority agent.' },
+  { id: 'PRO-002', name: 'IndraHook', role: 'Promo Fleet — Hook', tier: 'Promo', soul: 'missing', notes: 'Pending deployment.' },
+  { id: 'PRO-003', name: 'YamaRevenue', role: 'Promo Fleet — Revenue', tier: 'Promo', soul: 'missing', notes: 'Pending PromoRevenue.sol deployment. Priority agent.' },
+  // Unregistered slots (MO28 has 28 total)
+  ...Array.from({length:12}, (_,i) => ({
+    id: `UNR-${String(i+1).padStart(3,'0')}`,
+    name: `[UNREGISTERED ${i+1}]`,
+    role: 'Awaiting Registration',
+    tier: 'Unregistered',
+    soul: 'missing',
+    notes: ''
+  }))
+];
+
+let agents = [];
+
+async function loadAgents() {
+  agents = (await load(KEY_AGENTS)) || AGENT_DEFAULTS.map(a => ({...a}));
+  renderAgents();
+}
+
+function renderAgents() {
+  const grid = document.getElementById('agents-grid');
+  grid.innerHTML = agents.map((a, idx) => `
+    <div class="agent-card" id="ac-${idx}">
+      <div class="agent-header">
+        <div>
+          <div class="agent-name">${a.name}</div>
+          <div class="agent-id">${a.id} · ${a.tier}</div>
+        </div>
+      </div>
+      <div class="agent-role">${a.role}</div>
+      <div class="soul-status">
+        <div class="soul-dot ${a.soul}"></div>
+        <div class="soul-label">soul.md: ${a.soul.toUpperCase()}</div>
+      </div>
+      ${a.notes ? `<div class="agent-notes">${a.notes}</div>` : ''}
+      <div class="agent-edit-area" style="display:none;" id="edit-${idx}">
+        <label>NOTES / SOUL STATUS</label>
+        <textarea id="note-${idx}">${a.notes}</textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <select id="soul-${idx}" style="flex:1;min-width:100px;">
+            <option value="active" ${a.soul==='active'?'selected':''}>Active</option>
+            <option value="draft" ${a.soul==='draft'?'selected':''}>Draft</option>
+            <option value="missing" ${a.soul==='missing'?'selected':''}>Missing</option>
+          </select>
+          <button class="btn small" onclick="saveAgent(${idx})">Save</button>
+          <button class="btn small danger" onclick="closeAgent(${idx})">Cancel</button>
+        </div>
+      </div>
+      <button class="btn small" style="margin-top:10px;width:100%;" onclick="openAgent(${idx})">Edit soul.md</button>
+    </div>
+  `).join('');
+  updateStats();
+}
+
+function openAgent(idx) {
+  document.getElementById('ac-'+idx).classList.add('active-edit');
+  document.getElementById('edit-'+idx).style.display = 'block';
+}
+function closeAgent(idx) {
+  document.getElementById('ac-'+idx).classList.remove('active-edit');
+  document.getElementById('edit-'+idx).style.display = 'none';
+}
+async function saveAgent(idx) {
+  agents[idx].notes = document.getElementById('note-'+idx).value;
+  agents[idx].soul  = document.getElementById('soul-'+idx).value;
+  await save(KEY_AGENTS, agents);
+  closeAgent(idx);
+  renderAgents();
+  toast('Agent updated ✓');
+}
+
+// ── DEPLOY CHECKLIST ──
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  el.textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── STATS ──
+function updateStats() {
+  document.getElementById('stat-deployed').textContent = contracts.filter(c => c.status === 'deployed').length;
+  document.getElementById('stat-pending').textContent  = contracts.filter(c => c.status === 'pending').length;
+  document.getElementById('stat-soul').textContent     = agents.filter(a => a.soul === 'active').length;
+}
+
+// ── SACRED GEOMETRY BG ──
+(function() {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; draw(); }
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const cx = canvas.width/2, cy = canvas.height/2, R = Math.min(cx,cy)*0.7;
+    ctx.strokeStyle = '#c9a84c';
+    ctx.lineWidth = 0.5;
+    // Metatron circles
+    const centers = [[0,0],[0,-R],[0,R],
+      [R*Math.cos(Math.PI/6)*Math.sqrt(3),R*Math.sin(Math.PI/6)*Math.sqrt(3)],
+      [-R*Math.cos(Math.PI/6)*Math.sqrt(3),R*Math.sin(Math.PI/6)*Math.sqrt(3)],
+      [R*Math.cos(Math.PI/6)*Math.sqrt(3),-R*Math.sin(Math.PI/6)*Math.sqrt(3)],
+      [-R*Math.cos(Math.PI/6)*Math.sqrt(3),-R*Math.sin(Math.PI/6)*Math.sqrt(3)]];
+    // simplified hex
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3;
+      ctx.beginPath();
+      ctx.arc(cx+R*Math.cos(a), cy+R*Math.sin(a), R, 0, Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,cy,R*2,0,Math.PI*2); ctx.stroke();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+// ── INIT ──
+(async function init() {
+  await loadContracts();
+  await loadAgents();
+})();
+</script>
+</body>
+</html>

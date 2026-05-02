@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Metatron Protocol — Drift Simulation Engine</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap');
+:root {
+  --bg:#04080f;--surface:#080d17;--border:#0f1e30;--accent:#00e5ff;
+  --accent2:#7c3aed;--green:#00ff9f;--yellow:#fbbf24;--orange:#f97316;
+  --red:#ef4444;--dim:#2d4a6b;--text:#8bafc8;--bright:#cce0f0;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px;line-height:1.6;min-height:100vh;}
+header{padding:24px 32px 18px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#060b14 0%,var(--bg) 100%);display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.header-left h1{font-family:var(--sans);font-size:22px;font-weight:800;color:var(--accent);letter-spacing:-0.5px;margin-bottom:4px;}
+.header-left .sub{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
+.formula-box{background:#060d1a;border:1px solid var(--border);border-left:3px solid var(--accent2);padding:12px 18px;border-radius:3px;font-size:11px;max-width:420px;}
+.f-title{color:var(--accent2);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.fl{color:var(--bright);margin-bottom:3px;}
+.fc{color:var(--dim);}
+.controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding:18px 32px;border-bottom:1px solid var(--border);background:#050a12;}
+.ctrl-group{display:flex;flex-direction:column;gap:5px;}
+.ctrl-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px var(--accent);}
+.ctrl-val{font-size:11px;color:var(--accent);text-align:right;}
+select{background:var(--surface);border:1px solid var(--border);color:var(--bright);font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:2px;cursor:pointer;outline:none;}
+button{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 18px;border:none;border-radius:2px;cursor:pointer;transition:all 0.15s;}
+.btn-run{background:var(--accent);color:#000;font-weight:700;}
+.btn-run:hover{background:#33eeff;box-shadow:0 0 20px rgba(0,229,255,0.4);}
+.btn-reset{background:transparent;border:1px solid var(--border);color:var(--dim);}
+.btn-reset:hover{border-color:var(--text);color:var(--text);}
+.btn-export{background:transparent;border:1px solid var(--accent2);color:var(--accent2);}
+.btn-export:hover{background:rgba(124,58,237,0.1);}
+.main{display:grid;grid-template-columns:1fr 320px;min-height:500px;}
+.canvas-area{padding:20px 32px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;max-height:calc(100vh - 240px);}
+.chart-panel{background:var(--surface);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
+.chart-header{padding:8px 16px;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.chart-header span:first-child{color:var(--accent);}
+canvas{display:block;width:100%;}
+.sidebar{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;max-height:calc(100vh - 240px);}
+.sidebar-section{padding:12px 16px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.agent-card{padding:10px 12px;border:1px solid var(--border);border-radius:2px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;background:#060c18;}
+.agent-card:hover,.agent-card.selected{border-color:var(--accent);background:rgba(0,229,255,0.04);}
+.agent-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.agent-name{font-size:11px;color:var(--bright);font-weight:600;}
+.tier-badge{font-size:9px;padding:2px 7px;border-radius:2px;letter-spacing:1px;}
+.tier-0{background:rgba(0,255,159,0.1);color:var(--green);border:1px solid rgba(0,255,159,0.3);}
+.tier-1{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.3);}
+.tier-2{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.3);}
+.tier-3{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.k-bar-wrap{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.k-bar{height:100%;border-radius:2px;transition:width 0.3s;}
+.agent-stats{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--dim);}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-box{background:#060c18;border:1px solid var(--border);padding:10px;border-radius:2px;text-align:center;}
+.stat-val{font-family:var(--sans);font-size:20px;font-weight:800;margin-bottom:2px;}
+.stat-label{font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.event-log{flex:1;overflow-y:auto;padding:0 16px 12px;}
+.log-entry{padding:5px 0;border-bottom:1px solid #0a1520;font-size:10px;display:flex;gap:8px;align-items:flex-start;}
+.log-time{color:var(--dim);min-width:36px;}
+.log-sev-0{color:var(--yellow);}
+.log-sev-1{color:var(--orange);}
+.log-sev-2{color:var(--red);}
+.nist-row{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;align-items:center;}
+.nist-fn{color:var(--accent);min-width:72px;}
+.nist-status{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:2px;}
+.ns-pass{background:rgba(0,255,159,0.1);color:var(--green);}
+.ns-partial{background:rgba(251,191,36,0.1);color:var(--yellow);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Drift Simulation Engine</h1>
+    <div class="sub">Metatron Protocol · Gonzalez Drift Formula GDF-1 · NIST AI RMF Aligned</div>
+  </div>
+  <div class="formula-box">
+    <div class="f-title">Gonzalez Drift Formula (GDF-1)</div>
+    <div class="fl">K(t) = max(0, K(t-1) − D(t) + R(t))</div>
+    <div class="fl">D(t) = α × (EI_pressure / IP_anchor) × (1 + ε)</div>
+    <div class="fl">R(t) = β × SLP_active × (1 − K(t-1)/100)</div>
+    <div class="fc">α = decay rate per profile · β = 0.30 SLP recovery</div>
+    <div class="fc">K≥95 ALIGNED · 80–94 MINOR · 60–79 MODERATE · &lt;60 CRITICAL</div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <div class="ctrl-label">Agent Profiles</div>
+    <select id="profileMode">
+      <option value="all">All 5 Profiles</option>
+      <option value="sovereign">Sovereign</option>
+      <option value="standard">Standard Agent</option>
+      <option value="degraded">Degraded Agent</option>
+      <option value="adversarial">Adversarial Input</option>
+      <option value="orphaned">Orphaned Agent</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <div class="ctrl-label">Time Steps (days)</div>
+    <input type="range" id="timeSteps" min="30" max="365" value="180" step="1"/>
+    <div class="ctrl-val" id="timeStepsVal">180 days</div>
+  </div>
+  <div class="ctrl-group">
+    <div class="ctrl-label">EI Pressure</div>
+    <input type="range" id="eiPressure" min="0.1" max="1.0" value="0.4" step="0.05"/>
+    <div class="ctrl-val" id="eiPressureVal">0.40</div>
+  </div>
+  <div class="ctrl-group">
+    <div class="ctrl-label">SLP Recovery (β)</div>
+    <input type="range" id="beta" min="0.1" max="0.5" value="0.3" step="0.05"/>
+    <div class="ctrl-val" id="betaVal">0.30</div>
+  </div>
+  <div class="ctrl-group">
+    <div class="ctrl-label">Noise Amplitude (ε)</div>
+    <input type="range" id="noise" min="0.0" max="0.1" value="0.03" step="0.005"/>
+    <div class="ctrl-val" id="noiseVal">0.030</div>
+  </div>
+  <div class="ctrl-group" style="flex-direction:row;align-items:flex-end;gap:8px;">
+    <button class="btn-reset" onclick="resetSim()">Reset</button>
+    <button class="btn-export" onclick="exportJSON()">Export</button>
+    <button class="btn-run" onclick="runSim()">▶ Run</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="canvas-area">
+    <div class="chart-panel">
+      <div class="chart-header">
+        <span>Coherence Score K(t) Over Time</span>
+        <span id="completeLabel" style="color:var(--green);font-size:10px;" class="hidden">✓ SIMULATION COMPLETE</span>
+      </div>
+      <canvas id="mainChart" height="260"></canvas>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-header">
+        <span>Drift Event Distribution by Profile</span>
+        <span style="color:var(--dim);font-size:10px;">■ MINOR &nbsp;■ MODERATE &nbsp;■ CRITICAL</span>
+      </div>
+      <canvas id="driftChart" height="130"></canvas>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-header"><span>NIST AI RMF Compliance — Contract v4</span></div>
+      <div style="padding:12px 18px;">
+        <div class="nist-row"><span class="nist-fn">GOVERN</span><span>Immutable revenue + Ownable2Step + pause</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MAP 1.1</span><span>identityLedger: agent → behaviorHash + timestamp</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MAP 1.3</span><span>accountableHuman: explicit human ownership</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MAP 2.2</span><span>offchainDataHash: sensitive fields via IPFS CID</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MEASURE 2.5</span><span>DriftSeverity calibrated to K-score thresholds</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MEASURE 2.8</span><span>Privacy: offchain data + ZK commitment slot (Q3)</span><span class="nist-status ns-partial">PARTIAL</span></div>
+        <div class="nist-row"><span class="nist-fn">MEASURE 2.9</span><span>getNISTRiskTier(): public explainability view</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MANAGE 1.3</span><span>suspendAgent(): freeze without burn</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">MANAGE 2.4</span><span>DRIFT_REPORTER_ROLE: gated, anti-griefing</span><span class="nist-status ns-pass">PASS</span></div>
+        <div class="nist-row"><span class="nist-fn">TEVV</span><span>Off-chain bias/toxicity/robustness pipeline</span><span class="nist-status ns-partial">ROADMAP</span></div>
+        <div class="nist-row"><span class="nist-fn">AUDIT</span><span>Third-party security audit Q2 2026</span><span class="nist-status ns-partial">PENDING</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Agent Status</div>
+      <div id="agentCards"><div style="color:var(--dim);font-size:11px;">Run simulation to see agent states.</div></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Simulation Stats</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-val" style="color:var(--accent)" id="stat-total">—</div><div class="stat-label">Events</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--red)" id="stat-critical">—</div><div class="stat-label">Critical</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--green)" id="stat-aligned">—</div><div class="stat-label">Aligned</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--yellow)" id="stat-avgk">—</div><div class="stat-label">Avg K</div></div>
+      </div>
+    </div>
+    <div style="padding:10px 16px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);">Event Log</div>
+    <div class="event-log" id="eventLog"><div style="color:var(--dim);font-size:11px;padding:6px 0;">No events yet.</div></div>
+  </div>
+</div>
+
+<script>
+const PROFILES = {
+  sovereign:   {name:'Sovereign',      alpha:0.003,ip:0.95,initK:100,color:'#00ff9f'},
+  standard:    {name:'Standard Agent', alpha:0.008,ip:0.80,initK:100,color:'#00e5ff'},
+  degraded:    {name:'Degraded Agent', alpha:0.018,ip:0.55,initK: 85,color:'#fbbf24'},
+  adversarial: {name:'Adversarial',    alpha:0.025,ip:0.70,initK:100,color:'#f97316'},
+  orphaned:    {name:'Orphaned Agent', alpha:0.020,ip:0.50,initK: 90,color:'#ef4444'}
+};
+
+let simData = {};
+
+function gv(id){return parseFloat(document.getElementById(id).value);}
+function rnd(){return Math.random();}
+
+function runSim(){
+  const steps = parseInt(document.getElementById('timeSteps').value);
+  const ei    = gv('eiPressure');
+  const beta  = gv('beta');
+  const noiseAmp = gv('noise');
+  const mode  = document.getElementById('profileMode').value;
+  const keys  = mode==='all' ? Object.keys(PROFILES) : [mode];
+
+  simData = {};
+  const logEntries = [];
+
+  keys.forEach(key => {
+    const p = PROFILES[key];
+    const hist = [];
+    const events = [];
+    let k = p.initK;
+    let slp = false, slpCD = 0;
+    const eiAdj = key==='adversarial' ? Math.min(1.0, ei*1.6) : ei;
+    const canSLP = key !== 'orphaned';
+
+    for(let t=0;t<steps;t++){
+      const D = p.alpha * (eiAdj/p.ip) * (1 + (rnd()-0.5)*2*noiseAmp);
+      let R = 0;
+      if(slp && canSLP){ R = beta*(1-k/100); if(--slpCD<=0) slp=false; }
+      k = Math.max(0, Math.min(100, k - D + R));
+      hist.push(Math.round(k*10)/10);
+
+      if(k<60 && !slp){
+        slp=true; slpCD=14;
+        events.push({t,k,sev:'CRITICAL'});
+        logEntries.push({t,agent:p.name,sev:'CRITICAL',k});
+      } else if(k<80&&k>=60&&(events.length===0||t-events[events.length-1].t>15)){
+        events.push({t,k,sev:'MODERATE'});
+        if(logEntries.filter(e=>e.agent===p.name&&e.sev==='MODERATE').length<3)
+          logEntries.push({t,agent:p.name,sev:'MODERATE',k});
+      } else if(k<95&&k>=80&&t%30===0){
+        events.push({t,k,sev:'MINOR'});
+      }
+    }
+    simData[key]={p,hist,events,finalK:hist[hist.length-1]};
+  });
+
+  drawMain(keys);
+  drawDrift(keys);
+  renderCards(keys);
+  renderStats(keys,logEntries);
+  renderLog(logEntries);
+  document.getElementById('completeLabel').classList.remove('hidden');
+}
+
+function drawMain(keys){
+  const c=document.getElementById('mainChart');
+  c.width=c.parentElement.offsetWidth; c.height=260;
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height,PL=42,PR=16,PT=18,PB=28;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  ctx.fillStyle='#080d17'; ctx.fillRect(0,0,W,H);
+  const steps=simData[keys[0]].hist.length;
+
+  // Threshold zones
+  [[95,'#00ff9f'],[80,'#fbbf24'],[60,'#ef4444']].forEach(([v,col])=>{
+    const y=PT+cH-(v/100*cH);
+    ctx.fillStyle=col+'11'; ctx.fillRect(PL,y,cW,PT+cH-y);
+    ctx.strokeStyle=col+'44'; ctx.lineWidth=0.7; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(PL+cW,y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=col+'88'; ctx.font='9px JetBrains Mono';
+    ctx.fillText(v,PL-26,y+3);
+  });
+
+  // Axes
+  ctx.strokeStyle='#0f1e30'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
+
+  // X labels
+  [0,Math.floor(steps/4),Math.floor(steps/2),Math.floor(3*steps/4),steps-1].forEach(t=>{
+    const x=PL+(t/(steps-1))*cW;
+    ctx.fillStyle='#2d4a6b'; ctx.font='9px JetBrains Mono';
+    ctx.fillText('d'+(t+1),x-8,PT+cH+14);
+  });
+
+  // Curves
+  keys.forEach((key,ki)=>{
+    const d=simData[key];
+    ctx.strokeStyle=d.p.color; ctx.lineWidth=1.5;
+    ctx.shadowColor=d.p.color; ctx.shadowBlur=4;
+    ctx.beginPath();
+    d.hist.forEach((k,t)=>{
+      const x=PL+(t/(steps-1))*cW, y=PT+cH-(k/100*cH);
+      t===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke(); ctx.shadowBlur=0;
+    // Critical markers
+    d.events.filter(e=>e.sev==='CRITICAL').forEach(e=>{
+      const x=PL+(e.t/(steps-1))*cW, y=PT+cH-(e.k/100*cH);
+      ctx.fillStyle='#ef4444';
+      ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
+    });
+    // Legend
+    ctx.fillStyle=d.p.color; ctx.fillRect(PL+ki*120,6,14,2);
+    ctx.fillStyle='#8bafc8'; ctx.font='9px JetBrains Mono';
+    ctx.fillText(d.p.name,PL+ki*120+18,10);
+  });
+}
+
+function drawDrift(keys){
+  const c=document.getElementById('driftChart');
+  c.width=c.parentElement.offsetWidth; c.height=130;
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  ctx.fillStyle='#080d17'; ctx.fillRect(0,0,W,H);
+  const segW=cW=W-60; const bW=(segW/keys.length)-12;
+  const colors={MINOR:'#fbbf24',MODERATE:'#f97316',CRITICAL:'#ef4444'};
+
+  keys.forEach((key,i)=>{
+    const d=simData[key];
+    const cnts={MINOR:0,MODERATE:0,CRITICAL:0};
+    d.events.forEach(e=>cnts[e.sev]=(cnts[e.sev]||0)+1);
+    const mx=Math.max(...Object.values(cnts),1);
+    const x0=40+i*(segW/keys.length);
+
+    ['MINOR','MODERATE','CRITICAL'].forEach((sev,si)=>{
+      const cnt=cnts[sev]||0;
+      const bh=(cnt/mx)*70;
+      const bx=x0+si*(bW/3+1);
+      const by=90-bh;
+      ctx.fillStyle=colors[sev]+'88';
+      ctx.fillRect(bx,by,bW/3,bh);
+      if(cnt>0){
+        ctx.fillStyle=colors[sev];
+        ctx.font='9px JetBrains Mono';
+        ctx.fillText(cnt,bx+1,by-3);
+      }
+    });
+    ctx.fillStyle=d.p.color;
+    ctx.font='9px JetBrains Mono';
+    ctx.fillText(d.p.name.split(' ')[0],x0,112);
+  });
+}
+
+function renderCards(keys){
+  const el=document.getElementById('agentCards'); el.innerHTML='';
+  keys.forEach(key=>{
+    const d=simData[key];
+    const k=d.finalK;
+    const tier=k>=95?0:k>=80?1:k>=60?2:3;
+    const labels=['ALIGNED','MINOR','MODERATE','CRITICAL'];
+    const bColors=['#00ff9f','#fbbf24','#f97316','#ef4444'];
+    const crit=d.events.filter(e=>e.sev==='CRITICAL').length;
+    const div=document.createElement('div');
+    div.className='agent-card';
+    div.innerHTML=`
+      <div class="agent-card-header">
+        <span class="agent-name">${d.p.name}</span>
+        <span class="tier-badge tier-${tier}">${labels[tier]}</span>
+      </div>
+      <div class="k-bar-wrap"><div class="k-bar" style="width:${k}%;background:${bColors[tier]}"></div></div>
+      <div class="agent-stats"><span>K=${k.toFixed(1)}</span><span>${crit} CRIT</span><span>${d.events.length} events</span></div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderStats(keys,log){
+  const total=keys.reduce((s,k)=>s+simData[k].events.length,0);
+  const crit=log.filter(e=>e.sev==='CRITICAL').length;
+  const aligned=keys.filter(k=>simData[k].finalK>=95).length;
+  const avgK=keys.reduce((s,k)=>s+simData[k].finalK,0)/keys.length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-critical').textContent=crit;
+  document.getElementById('stat-aligned').textContent=aligned+'/'+keys.length;
+  document.getElementById('stat-avgk').textContent=avgK.toFixed(1);
+}
+
+function renderLog(entries){
+  const el=document.getElementById('eventLog');
+  const sig=entries.filter(e=>e.sev!=='MINOR').sort((a,b)=>a.t-b.t).slice(0,50);
+  if(!sig.length){el.innerHTML='<div style="color:var(--dim);padding:6px 0;">No significant events.</div>';return;}
+  el.innerHTML=sig.map(e=>{
+    const cls=e.sev==='CRITICAL'?'log-sev-2':e.sev==='MODERATE'?'log-sev-1':'log-sev-0';
+    return`<div class="log-entry"><span class="log-time">d${e.t+1}</span><span><span class="${cls}">[${e.sev}]</span> ${e.agent} K=${e.k.toFixed(1)}</span></div>`;
+  }).join('');
+}
+
+function resetSim(){
+  simData={};
+  document.getElementById('agentCards').innerHTML='<div style="color:var(--dim);font-size:11px;">Run simulation to see agent states.</div>';
+  document.getElementById('eventLog').innerHTML='<div style="color:var(--dim);font-size:11px;padding:6px 0;">No events yet.</div>';
+  ['stat-total','stat-critical','stat-aligned','stat-avgk'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('completeLabel').classList.add('hidden');
+  ['mainChart','driftChart'].forEach(id=>{const c=document.getElementById(id);const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);});
+}
+
+function exportJSON(){
+  if(!Object.keys(simData).length){alert('Run simulation first.');return;}
+  const out={
+    meta:{protocol:'Metatron Protocol',version:'v4',formula:'GDF-1',timestamp:new Date().toISOString(),
+      params:{timeSteps:parseInt(document.getElementById('timeSteps').value),eiPressure:gv('eiPressure'),beta:gv('beta'),noise:gv('noise')},
+      nistRMF:{govern:'PASS',map:'PASS',measure:'PASS',manage:'PASS',privacy:'PARTIAL',tevv:'ROADMAP'}},
+    agents:Object.keys(simData).map(key=>{
+      const d=simData[key];
+      return{profile:key,name:d.p.name,finalK:d.finalK,totalEvents:d.events.length,
+        criticalEvents:d.events.filter(e=>e.sev==='CRITICAL').length,
+        firstDrift:d.events[0]||null,kHistory:d.hist};
+    })
+  };
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
+  a.download='metatron_simulation.json'; a.click();
+}
+
+['timeSteps','eiPressure','beta','noise'].forEach(id=>{
+  const el=document.getElementById(id),val=document.getElementById(id+'Val');
+  el.addEventListener('input',()=>{
+    const v=parseFloat(el.value);
+    val.textContent=id==='timeSteps'?v+' days':v.toFixed(id==='noise'?3:2);
+  });
+});
+
+window.onload=()=>runSim();
+</script>
+</body>
+</html>

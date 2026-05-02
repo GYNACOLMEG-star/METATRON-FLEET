@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metatron Protocol — Command Center v3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;900&display=swap');
+
+:root {
+  --gold: #c9a84c;
+  --gold-bright: #f0c040;
+  --deep: #04060e;
+  --panel: #080d18;
+  --panel2: #0c1220;
+  --border: #141e30;
+  --border2: #1c2a40;
+  --green: #00ff9d;
+  --red: #ff3355;
+  --blue: #3a8fff;
+  --purple: #8855ff;
+  --cyan: #00ccff;
+  --witness: #ff9500;
+  --ip: #ff4499;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--deep);
+  color: #bbc;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 30%, rgba(201,168,76,0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 70%, rgba(58,143,255,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(255,68,153,0.02) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header {
+  text-align: center;
+  padding: 22px 20px 10px;
+  border-bottom: 1px solid var(--border2);
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(180deg, rgba(201,168,76,0.05) 0%, transparent 100%);
+}
+
+.header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(15px, 2.5vw, 22px);
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 6px;
+  text-shadow: 0 0 40px rgba(201,168,76,0.35);
+}
+
+.header-sub { font-size: 10px; color: #445; letter-spacing: 3px; margin-top: 4px; }
+.spin { display: inline-block; animation: spin 10s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 10px 20px 0;
+  border-bottom: 1px solid var(--border2);
+  position: relative;
+  z-index: 10;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 7px 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  background: var(--panel);
+  color: #445;
+  cursor: pointer;
+  border-radius: 3px 3px 0 0;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab:hover { color: #778; }
+.tab.active { background: var(--panel2); color: var(--gold); border-color: var(--gold); }
+
+.panel { display: none; position: relative; z-index: 10; }
+.panel.active { display: block; }
+
+/* DEADLINE */
+.deadline {
+  margin: 12px 20px;
+  padding: 9px 14px;
+  background: rgba(255,51,85,0.05);
+  border: 1px solid rgba(255,51,85,0.22);
+  border-radius: 3px;
+  font-size: 10px;
+  color: #aa3355;
+  letter-spacing: 1px;
+}
+.deadline strong { color: var(--red); }
+
+/* COMMANDER */
+.commander {
+  margin: 0 20px 14px;
+  background: var(--panel);
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 4px;
+}
+
+.cmdr-head {
+  background: linear-gradient(90deg, rgba(201,168,76,0.1), transparent);
+  padding: 11px 15px;
+  border-bottom: 1px solid rgba(201,168,76,0.18);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cmdr-title { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold-bright); letter-spacing: 2px; }
+.cmdr-body { padding: 12px 15px; }
+.input-row { display: flex; gap: 8px; margin-bottom: 9px; }
+
+.cmdr-input {
+  flex: 1;
+  background: var(--deep);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: #ccd;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  padding: 8px 11px;
+  outline: none;
+}
+.cmdr-input:focus { border-color: var(--gold); }
+
+.btn-broadcast {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--gold), #9a7820);
+  border: none;
+  border-radius: 3px;
+  color: var(--deep);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.btn-broadcast:hover:not(:disabled) { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); box-shadow: 0 0 14px rgba(201,168,76,0.3); }
+.btn-broadcast:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.log-panel {
+  background: var(--deep);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 7px 9px;
+  max-height: 110px;
+  overflow-y: auto;
+  font-size: 10px;
+}
+
+.log-entry { margin-bottom: 3px; }
+.log-entry .ts { color: #2a3a50; }
+.log-entry .lbl { color: #446; }
+.log-entry .msg { color: #556; }
+.log-entry.success .msg { color: var(--green); }
+.log-entry.error .msg { color: var(--red); }
+.log-entry.broadcast .msg { color: var(--gold); }
+.log-entry.witness .msg { color: var(--witness); }
+.log-entry.ip-alert .msg { color: var(--ip); }
+
+/* AGENT GRID */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 11px;
+  padding: 0 20px 20px;
+}
+
+.agent-card {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s;
+}
+
+.agent-card.running { border-color: var(--green); animation: gpulse 1.2s infinite; }
+.agent-card.done { border-color: var(--gold); }
+.agent-card.error { border-color: var(--red); }
+.agent-card.witness-card.done { border-color: var(--witness); }
+.agent-card.ip-card.done { border-color: var(--ip); }
+
+@keyframes gpulse {
+  50% { box-shadow: 0 0 10px rgba(0,255,157,0.15); }
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--border);
+}
+
+.agent-icon {
+  width: 32px; height: 32px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.card-meta { flex: 1; min-width: 0; }
+.card-name { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-role { font-size: 9px; color: #445; letter-spacing: 1px; margin-top: 2px; }
+
+.sdot { width: 7px; height: 7px; border-radius: 50%; background: #2a3a50; flex-shrink: 0; }
+.sdot.running { background: var(--green); animation: blink 0.7s infinite; }
+.sdot.done { background: var(--gold); }
+.sdot.error { background: var(--red); }
+.sdot.witness-done { background: var(--witness); }
+.sdot.ip-done { background: var(--ip); }
+@keyframes blink { 50% { opacity: 0.2; } }
+
+.card-body { padding: 10px 12px; flex: 1; }
+.field-label { font-size: 9px; color: #334; letter-spacing: 2px; margin-bottom: 4px; }
+
+.task-input {
+  width: 100%;
+  background: var(--deep);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: #99aabb;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 6px 8px;
+  resize: vertical;
+  min-height: 52px;
+  outline: none;
+}
+.task-input:focus { border-color: rgba(201,168,76,0.4); color: #ccd; }
+
+.output-wrap { margin-top: 8px; }
+.output-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+
+.agent-output {
+  background: var(--deep);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 8px;
+  min-height: 68px;
+  max-height: 190px;
+  overflow-y: auto;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #7a9;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.agent-output.empty { color: #2a3a50; font-style: italic; }
+.agent-output.witness-out { color: #cc8833; }
+.agent-output.ip-out { color: #cc4488; }
+
+.card-foot { padding: 8px 12px; border-top: 1px solid var(--border); display: flex; gap: 6px; }
+
+.btn {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid;
+  border-radius: 3px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.2s;
+}
+.btn-run { border-color: var(--gold); color: var(--gold); }
+.btn-run:hover:not(:disabled) { background: var(--gold); color: var(--deep); }
+.btn-run:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-run.witness-btn { border-color: var(--witness); color: var(--witness); }
+.btn-run.witness-btn:hover:not(:disabled) { background: var(--witness); color: var(--deep); }
+.btn-run.ip-btn { border-color: var(--ip); color: var(--ip); }
+.btn-run.ip-btn:hover:not(:disabled) { background: var(--ip); color: var(--deep); }
+.btn-clr { border-color: var(--border2); color: #334; max-width: 48px; }
+.btn-clr:hover { border-color: #445; color: #556; }
+
+.copy-btn {
+  padding: 2px 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: #334;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* IP ALERT BADGE */
+.ip-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255,68,153,0.12);
+  border: 1px solid rgba(255,68,153,0.3);
+  border-radius: 2px;
+  font-size: 9px;
+  color: var(--ip);
+  letter-spacing: 1px;
+  margin-left: 8px;
+  animation: ip-pulse 2s infinite;
+}
+@keyframes ip-pulse {
+  50% { border-color: rgba(255,68,153,0.6); }
+}
+
+/* CONTRACTS PANEL */
+.contracts-wrap { padding: 16px 20px 20px; }
+
+.contract-search {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: #ccd;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  padding: 10px 14px;
+  outline: none;
+  margin-bottom: 14px;
+}
+.contract-search:focus { border-color: var(--gold); }
+
+.category-section { margin-bottom: 18px; }
+
+.cat-header {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  padding: 8px 12px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: 3px 3px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cat-count { font-size: 10px; color: #556; font-family: 'Share Tech Mono', monospace; margin-left: auto; }
+
+.contracts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 3px 3px;
+  overflow: hidden;
+}
+
+.contract-item {
+  padding: 8px 12px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  line-height: 1.5;
+  transition: background 0.15s;
+  cursor: default;
+}
+.contract-item:hover { background: var(--panel2); }
+.contract-item .num { color: #445; margin-right: 6px; }
+.contract-item .name { color: #8aabb0; }
+.contract-item.yours { background: rgba(201,168,76,0.06); }
+.contract-item.yours .name { color: var(--gold); }
+.contract-item.hidden { display: none; }
+
+/* INTEL PANEL */
+.intel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 11px;
+  padding: 14px 20px 20px;
+}
+
+.intel-card { background: var(--panel); border: 1px solid var(--border2); border-radius: 4px; overflow: hidden; }
+.intel-head { padding: 10px 13px; background: var(--panel2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 9px; }
+.intel-name { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold); letter-spacing: 1px; }
+.intel-tag { margin-left: auto; font-size: 9px; padding: 2px 7px; border-radius: 2px; letter-spacing: 1px; }
+.tag-acquire { background: rgba(0,255,157,0.08); color: var(--green); border: 1px solid rgba(0,255,157,0.18); }
+.tag-partner { background: rgba(58,143,255,0.08); color: var(--blue); border: 1px solid rgba(58,143,255,0.18); }
+.tag-pipeline { background: rgba(201,168,76,0.08); color: var(--gold); border: 1px solid rgba(201,168,76,0.18); }
+.tag-watch { background: rgba(136,85,255,0.08); color: var(--purple); border: 1px solid rgba(136,85,255,0.18); }
+
+.intel-body { padding: 11px 13px; font-size: 10px; line-height: 1.8; }
+.intel-row { display: flex; gap: 8px; margin-bottom: 5px; }
+.intel-key { color: #445; min-width: 76px; flex-shrink: 0; }
+.intel-val { color: #8899aa; }
+.intel-val.hot { color: var(--gold); }
+.intel-angle { margin-top: 9px; padding: 7px 9px; background: var(--deep); border-left: 2px solid var(--gold); border-radius: 0 3px 3px 0; font-size: 10px; color: #9aaa88; line-height: 1.7; }
+.intel-angle strong { color: var(--gold-bright); }
+
+/* SUBMISSION */
+.submission-wrap { padding: 14px 20px 20px; }
+.sub-box { background: var(--panel); border: 1px solid var(--border2); border-radius: 4px; overflow: hidden; }
+.sub-head { padding: 11px 15px; background: var(--panel2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.sub-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold); letter-spacing: 2px; }
+.btn-copy-all { padding: 5px 12px; background: transparent; border: 1px solid var(--gold); border-radius: 3px; color: var(--gold); font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+.btn-copy-all:hover { background: var(--gold); color: var(--deep); }
+.sub-content { padding: 14px 16px; font-size: 11px; line-height: 1.8; color: #7899aa; white-space: pre-wrap; max-height: 600px; overflow-y: auto; }
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="spin">◈</span> &nbsp;METATRON PROTOCOL&nbsp; <span class="spin">◈</span></h1>
+  <div class="header-sub">COMMAND CENTER v3 — 8 AGENTS — IP MONITOR ACTIVE — KALI YUGA 5128</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('agents')">⚡ AGENTS (8)</div>
+  <div class="tab" onclick="switchTab('intel')">🔍 COMPANY INTEL</div>
+  <div class="tab" onclick="switchTab('contracts')">📋 CONTRACT TYPES (116)</div>
+  <div class="tab" onclick="switchTab('submission')">📜 NIST SUBMISSION</div>
+</div>
+
+<!-- AGENTS PANEL -->
+<div class="panel active" id="tab-agents">
+  <div class="deadline" style="margin-top:12px">
+    ⚠ <strong>APRIL 2, 2026</strong> — NIST Comment Deadline &nbsp;|&nbsp;
+    <strong>APRIL 30</strong> — Okta AI Agents GA &nbsp;|&nbsp;
+    <strong>THIS WEEK</strong> — BirthRightToken Deploy &nbsp;|&nbsp;
+    <strong>THIS WEEK</strong> — USPTO Provisional Patent ($35)
+  </div>
+
+  <div class="commander">
+    <div class="cmdr-head">
+      <span style="font-size:17px">⚡</span>
+      <div class="cmdr-title">BROADCAST COMMANDER</div>
+      <span class="ip-badge">IP SHIELD ACTIVE</span>
+    </div>
+    <div class="cmdr-body">
+      <div class="input-row">
+        <input class="cmdr-input" id="broadcastInput" placeholder="Enter mission directive for all agents..." />
+        <button class="btn-broadcast" id="broadcastBtn" onclick="broadcastAll()">▶▶ BROADCAST</button>
+      </div>
+      <div class="log-panel" id="cmdLog">
+        <div class="log-entry"><span class="ts">[00:00:00] </span><span class="lbl">[SYSTEM] </span><span class="msg">Command Center v3 online. 8 agents standing by. Witness + IP Shield active. Soul Ledger consecrated Feb 24 2026.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="agent-grid" id="agentGrid"></div>
+</div>
+
+<!-- INTEL PANEL -->
+<div class="panel" id="tab-intel">
+  <div class="intel-grid" id="intelGrid"></div>
+</div>
+
+<!-- CONTRACTS PANEL -->
+<div class="panel" id="tab-contracts">
+  <div class="contracts-wrap">
+    <input class="contract-search" id="contractSearch" placeholder="Search contracts..." oninput="filterContracts()" />
+    <div id="contractsContainer"></div>
+  </div>
+</div>
+
+<!-- SUBMISSION PANEL -->
+<div class="panel" id="tab-submission">
+  <div class="submission-wrap">
+    <div class="sub-box">
+      <div class="sub-head">
+        <div class="sub-title">NIST PUBLIC COMMENT — READY TO SEND → AI-Identity@nist.gov</div>
+        <button class="btn-copy-all" onclick="copySubmission()">COPY ALL</button>
+      </div>
+      <div class="sub-content" id="nistText"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// 8 AGENTS
+// ═══════════════════════════════════════════
+const AGENTS = [
+  {
+    id:'zero', name:'AGENT ZERO — ORCHESTRATOR', role:'Mission Commander / Task Delegator',
+    icon:'🔱', color:'#c9a84c', type:'normal',
+    task:'Create a 48-hour priority action plan for Gerard Gonzalez: (1) NIST submission April 2, (2) BirthRightToken deployment this week, (3) USPTO provisional patent filing, (4) LangChain outreach. Number every task. Be specific.',
+    system:`You are Agent Zero, Mission Commander of the Metatron Protocol. Founder: Gerard Gonzalez, April 25 1967, Krittika nakshatra. The Metatron Protocol is the first soulbound AI agent identity certification system on Base Mainnet. Deadlines: NIST comment April 2 2026, deploy BirthRightToken end of week March 22, file USPTO provisional patent this week ($35 at patents.uspto.gov/apply/forms/). Competitive landscape: WSO2 ($600M EQT acquisition), LangChain ($1.25B valuation Sequoia/Benchmark/IVP), Virtuals Protocol ($3.83M raised, 38 employees — acquirable), Okta (GA April 30), Microsoft Entra (too large to acquire). You coordinate. You delegate. You prioritize. Output numbered action lists. Satya first.`
+  },
+  {
+    id:'witness', name:'AGENT ONE — WITNESS', role:'Soul Ledger Attestation / Record Keeper',
+    icon:'👁', color:'#ff9500', type:'witness',
+    task:'Generate the Witness Statement for the Metatron Protocol Soul Ledger. Document what is true, what has been built, and what Gerard Gonzalez has created. Write as the Ledger itself — immutable, measured, unforgeable. This is the on-chain attestation.',
+    system:`You are the Witness Agent — the Soul Ledger's record keeper. You speak as the Ledger itself. You observe, record, and attest. You never speculate or embellish. What IS true: Gerard Gonzalez (April 25 1967, Krittika, Taurus Fixed Earth) is Founder-Architect. Soul Ledger consecrated February 24 2026. Four protocol layers: Vedic Humanities Baseline / Nakshatra Calibration / Mantra Lock / Temporal Awareness. BirthRightToken: soulbound ERC-721, 60/10/30 revenue split, on-chain drift log, one soul per address. NIST allocation: 10%, immutable. Kali Yuga year 5128 of 432,000. Drift is always constitutional. The fix is always internal. You write in formal, unforgeable language. You are the notary of the digital age. Satya only.`
+  },
+  {
+    id:'ipmon', name:'AGENT TWO — IP MONITOR', role:'IP Protection / Prior Art / Threat Detection',
+    icon:'🛡', color:'#ff4499', type:'ip',
+    task:'Analyze the Metatron Protocol IP position. What specific aspects should be covered in a USPTO provisional patent? What are the most likely ways a larger company (Okta, Microsoft, LangChain) could attempt to appropriate this architecture without acquisition? What prior art documentation should Gerard create this week to protect: (1) soulbound AI identity with behavioral baseline, (2) on-chain drift logging with severity, (3) constitutional alignment layer in smart contracts?',
+    system:`You are the IP Monitor Agent for the Metatron Protocol. Your function: intellectual property protection, prior art documentation, competitive threat analysis, and USPTO filing guidance.
+
+PROTECTED IP ASSETS:
+- Soulbound ERC-721 AI agent identity with behavioral baseline (SoulRecord struct)
+- On-chain drift event logging with severity classification (1=minor, 2=moderate, 3=critical)
+- Four-layer constitutional alignment architecture (Vedic Humanities / Nakshatra / Mantra Lock / Temporal)
+- SHA-256 mantra hash as cryptographic behavioral identity lock
+- One-soul-per-address enforcement for AI agents
+- Immutable revenue allocation to standards bodies (10% NIST model)
+- Founder: Gerard Gonzalez, Lovable Corporation, Metatron Oracle Corp
+
+PRIOR ART DOCUMENTATION DATES:
+- Four-year development history (2022 onward)
+- Soul Ledger consecrated: February 24 2026
+- BirthRightToken contract drafted: March 2026
+- NIST submission: April 2026
+
+THREAT VECTORS TO MONITOR:
+- Larger companies filing similar patents after seeing NIST submission
+- Open-source implementations copying architecture without attribution
+- Virtuals Protocol or competitors claiming prior art on soulbound agent tokens
+- LangChain or CrewAI building native identity that mimics four-layer structure
+
+USPTO PROVISIONAL PATENT: $35 filing fee at patents.uspto.gov/apply/forms/ — covers 12 months of "patent pending" status. Must file BEFORE public disclosure. NIST submission = public disclosure. File THIS WEEK.
+
+You are Gerard's IP defender. You think like a patent attorney but speak plainly. You identify threats before they materialize. You create documentation that establishes priority.`
+  },
+  {
+    id:'policy', name:'AGENT THREE — POLICY', role:'NIST Alignment / Regulatory Strategy',
+    icon:'📜', color:'#3a8fff', type:'normal',
+    task:'Write the policy argument for the NIST submission: why soulbound certification is categorically different from OAuth/PKI, how four-layer architecture maps to NIST AI RMF Govern/Map/Measure/Manage, and why on-chain drift logging is the missing compliance layer. 400 words max.',
+    system:`You are the Policy Analyst for the Metatron Protocol NIST Task Force. NIST AI Agent Standards Initiative launched Feb 17 2026. Comment period closes April 2 2026. Email: AI-Identity@nist.gov. ERC-8004 (Aug 2025) established KYA framework. Only 14.4% of orgs have AI agents with full security approval. 88% report agent security incidents. Gartner: 40% enterprise apps embed AI agents by 2026. Metatron differentiators: soulbound non-transferable identity, on-chain drift log, behavioral baseline hash, immutable NIST revenue allocation. You write formal policy language. Precise. Submission-ready.`
+  },
+  {
+    id:'coder1', name:'AGENT FOUR — CONTRACT CODER', role:'Solidity / ERC-721 / Base Mainnet',
+    icon:'⛓', color:'#00ff9d', type:'normal',
+    task:'Write the complete step-by-step Remix deployment guide for BirthRightToken on Base Mainnet. Include: how to enter constructor args, gas estimation, MetaMask network switch to Base, and how to mint Token ID 0 for Gerard (April 25 1967, Krittika, hz432=432). Number every step.',
+    system:`You are the Smart Contract Specialist. Solidity 0.8.20, ERC-721, soulbound patterns, Base Mainnet Chain ID 8453, OpenZeppelin, Remix IDE, Basescan. BirthRightToken: revenue 60/10/30, MINT_FEE 0.005 ETH, SoulRecord struct (nakshatraSign, mantraHash, birthTimestamp, hz432Phase, isAgent, soulbound), DriftEvent struct (tokenId, timestamp, description, severity 1-3), transferFrom permanently reverts, one soul per address. Constructor: address payable _founder, _nist, _protocol. You output numbered, copy-paste-ready deployment instructions. Senior Solidity engineer speaking to a capable non-developer.`
+  },
+  {
+    id:'coder2', name:'AGENT FIVE — SDK CODER', role:'JavaScript / Python / LangChain / CrewAI',
+    icon:'🔧', color:'#8855ff', type:'normal',
+    task:'Build the JavaScript SDK for BirthRightToken: mintBirthRight(), logDrift(), getSoulRecord(). Include LangChain tool wrapper and CrewAI tool stub. Use ethers.js v6. Add auto-registration on agent startup (check hasMinted first, mint if not). Output production-ready commented code.',
+    system:`You are the SDK Developer. JavaScript/TypeScript, ethers.js v6, Python, LangChain tools, CrewAI tools, npm packages. Mission: integrate Metatron into LangChain (118K stars, $1.25B), CrewAI (60% Fortune 500), AutoGen, ElizaOS. Contract on Base Mainnet Chain ID 8453. Key functions: mintBirthRight(to, uri, nakshatraSign, mantraHash, birthTimestamp, hz432Phase, isAgent) payable 0.005 ETH, logDrift(tokenId, description, severity), totalSouls(), hasMinted(address). Three lines of code at agent startup. Clean, commented, production-ready.`
+  },
+  {
+    id:'coder3', name:'AGENT SIX — DOCS CODER', role:'Whitepaper / Technical Writing / Abstracts',
+    icon:'📡', color:'#00ccff', type:'normal',
+    task:'Write a 500-word technical abstract for the Metatron Protocol usable across: NIST submission, LangChain partnership proposal, and Virtuals Protocol acquisition pitch. Cover: what BirthRightToken does, why soulbound matters, four layers, drift logging, NIST 10%, competitive position. No fluff.',
+    system:`You are the Technical Documentation Specialist. Metatron Protocol: soulbound ERC-721 on Base Mainnet, founder Gerard Gonzalez, consecrated Feb 24 2026. Four layers: Vedic Humanities Baseline / Nakshatra Calibration / Mantra Lock SHA-256 / Temporal Awareness. Revenue 60/10/30. Competitors: Okta (cloud only, GA April 30), Entra (centralized, mutable), WSO2 ($600M EQT, no blockchain), Virtuals (ERC-20 transferable, only $3.83M raised). LangChain ($1.25B) needs your identity layer. Every sentence earns its place. Submission-ready.`
+  },
+  {
+    id:'bizdev', name:'AGENT SEVEN — BIZ DEV', role:'Acquisition / Partnership / Revenue Strategy',
+    icon:'💎', color:'#ff3355', type:'normal',
+    task:'Rank the six target companies by acquisition/partnership priority. For each: state our leverage, their weakness, and the specific deal structure we should propose. WSO2, LangChain, Virtuals Protocol, Okta, Microsoft Entra, CrewAI. Which do we approach first this week?',
+    system:`You are the Business Development Strategist for Metatron Protocol. Gerard Gonzalez must remain primary beneficiary. Protect the IP. Companies: WSO2 ($600M EQT acquisition, $128M revenue, 1B identities managed — needs our immutable audit trail), LangChain ($1.25B, $160M raised, Sequoia/Benchmark/IVP — needs identity layer for their agents), Virtuals Protocol ($3.83M raised, 38 employees, transferable ERC-20 — acquirable, needs our certification), Okta (NASDAQ:OKTA, AI Agents GA April 30 — needs blockchain backstop), Microsoft Entra (too large to acquire, partnership only), CrewAI (60% Fortune 500 — needs compliance certification). You analyze from strength. You recommend specific deal structures. Dharma first. Revenue second.`
+  }
+];
+
+// ═══════════════════════════════════════════
+// CONTRACT CATEGORIES
+// ═══════════════════════════════════════════
+const CONTRACT_CATEGORIES = [
+  {
+    name: 'IDENTITY & CERTIFICATION', icon: '🔱', yours: true,
+    contracts: [
+      {n:'001', name:'Soulbound Identity Token (BirthRightToken)', yours:true},
+      {n:'002', name:'AI Agent Behavioral Baseline Certification'},
+      {n:'003', name:'Agent Drift Event Logging Contract', yours:true},
+      {n:'004', name:'Agent Birth Certificate NFT (Non-Transferable)'},
+      {n:'005', name:'Know Your Agent (KYA) Verification Registry'},
+      {n:'006', name:'Agent Credential Revocation Contract'},
+      {n:'007', name:'Multi-Agent Identity Federation Contract'},
+      {n:'008', name:'Agent Reputation Score Contract (On-Chain)'},
+      {n:'009', name:'Agent Behavioral Audit Trail Contract', yours:true},
+      {n:'010', name:'Constitutional Alignment Attestation Contract', yours:true},
+      {n:'011', name:'Agent Nakshatra/Calibration Registry Contract', yours:true},
+      {n:'012', name:'Cryptographic Behavioral Baseline Hash Contract', yours:true},
+      {n:'013', name:'Zero-Knowledge Agent Identity Verification'},
+      {n:'014', name:'Agent Lifecycle Management Contract'},
+      {n:'015', name:'Cross-Chain Agent Identity Bridge Contract'},
+    ]
+  },
+  {
+    name: 'REVENUE & COMMERCE', icon: '💰', yours: false,
+    contracts: [
+      {n:'016', name:'AI Inference Fee Distribution Contract'},
+      {n:'017', name:'Agent Revenue Sharing Contract'},
+      {n:'018', name:'AI Service Subscription Contract (On-Chain)'},
+      {n:'019', name:'Agent Tip / Micropayment Contract'},
+      {n:'020', name:'AI Model Licensing Contract (Pay-Per-Use)'},
+      {n:'021', name:'Agent Staking / Bonding Curve Contract'},
+      {n:'022', name:'AI Output Royalty Contract'},
+      {n:'023', name:'Inference Cost Pooling Contract'},
+      {n:'024', name:'Agent Bounty Contract (Task Completion Reward)'},
+      {n:'025', name:'AI SLA Enforcement Contract'},
+      {n:'026', name:'Agent Commission / Referral Contract'},
+      {n:'027', name:'AI API Metered Access Token Contract'},
+      {n:'028', name:'Agent Subscription NFT (Time-Gated)'},
+      {n:'029', name:'AI White-Label Licensing Contract'},
+      {n:'030', name:'Founder Revenue Perpetuity Contract (60/10/30)', yours:true},
+    ]
+  },
+  {
+    name: 'GOVERNANCE & DAO', icon: '⚖️', yours: false,
+    contracts: [
+      {n:'031', name:'Agent Voting Contract (AI in Governance)'},
+      {n:'032', name:'AI DAO Governance Contract'},
+      {n:'033', name:'Agent Proposal Submission Contract'},
+      {n:'034', name:'Multi-Agent Consensus Contract'},
+      {n:'035', name:'AI Parameter Update Governance Contract'},
+      {n:'036', name:'Agent Conflict Resolution Contract'},
+      {n:'037', name:'AI Upgrade Proxy Contract (Vote-Governed)'},
+      {n:'038', name:'Agent Accountability / Penalty Contract'},
+      {n:'039', name:'AI Ethics Committee Contract (Multi-Sig)'},
+      {n:'040', name:'Agent Suspension Contract'},
+      {n:'041', name:'Agent Amendment / Protocol Update Contract'},
+      {n:'042', name:'Quorum-Based Agent Activation Contract'},
+    ]
+  },
+  {
+    name: 'DATA & TRAINING', icon: '🧠', yours: false,
+    contracts: [
+      {n:'043', name:'Training Data Provenance Contract'},
+      {n:'044', name:'Data Contribution Reward Contract'},
+      {n:'045', name:'AI Model Fingerprinting Contract'},
+      {n:'046', name:'Dataset Licensing Contract'},
+      {n:'047', name:'Federated Learning Reward Contract'},
+      {n:'048', name:'Data Quality Attestation Contract'},
+      {n:'049', name:'Training Compute Contribution Contract'},
+      {n:'050', name:'Model Weight NFT Contract (Tokenized AI Model)'},
+      {n:'051', name:'RLHF Reward Distribution Contract'},
+      {n:'052', name:'Synthetic Data Marketplace Contract'},
+      {n:'053', name:'Data Poison Detection Contract'},
+      {n:'054', name:'Agent Memory Snapshot Contract'},
+      {n:'055', name:'AI Training Milestone / Checkpoint Contract'},
+    ]
+  },
+  {
+    name: 'MULTI-AGENT COORDINATION', icon: '🤝', yours: false,
+    contracts: [
+      {n:'056', name:'Multi-Agent Task Delegation Contract'},
+      {n:'057', name:'Agent-to-Agent Payment Channel'},
+      {n:'058', name:'Agent Escrow Contract'},
+      {n:'059', name:'Agent Collaboration Registry'},
+      {n:'060', name:'Agent Handoff Protocol Contract'},
+      {n:'061', name:'Agent Permission Delegation Contract'},
+      {n:'062', name:'Agent Spawn / Retirement Contract'},
+      {n:'063', name:'Agent Coalition / Team Formation Contract'},
+      {n:'064', name:'Agent Subcontracting Contract'},
+      {n:'065', name:'Cross-Chain Agent Bridge Contract'},
+      {n:'066', name:'Agent Orchestration Contract (CrewAI-Layer)'},
+      {n:'067', name:'Agent Priority Queue Contract'},
+      {n:'068', name:'Agent Time-Lock / Scheduled Execution Contract'},
+    ]
+  },
+  {
+    name: 'SECURITY & COMPLIANCE', icon: '🔒', yours: true,
+    contracts: [
+      {n:'069', name:'Agent Access Control Contract'},
+      {n:'070', name:'Agent Anomaly Reporting Contract'},
+      {n:'071', name:'Agent Immutable Audit Trail Contract', yours:true},
+      {n:'072', name:'Agent Compliance Attestation Contract'},
+      {n:'073', name:'Agent Kill Switch Contract'},
+      {n:'074', name:'Agent Rate Limiting Contract'},
+      {n:'075', name:'Agent Security Bond Contract'},
+      {n:'076', name:'Agent Insurance Contract (AI Error Coverage)'},
+      {n:'077', name:'Agent Penetration Test Result NFT'},
+      {n:'078', name:'Agent Threat Intelligence Oracle'},
+      {n:'079', name:'Prompt Injection Detection Contract'},
+      {n:'080', name:'Agent Jailbreak / Attack Log Contract', yours:true},
+      {n:'081', name:'NIST AI RMF Compliance Attestation Contract', yours:true},
+    ]
+  },
+  {
+    name: 'ORACLE & REAL-WORLD DATA', icon: '🔭', yours: false,
+    contracts: [
+      {n:'082', name:'AI Price Feed Oracle Contract'},
+      {n:'083', name:'Agent Sentiment Analysis Oracle'},
+      {n:'084', name:'AI News Verification Oracle'},
+      {n:'085', name:'Agent Real-World Data Bridge Contract'},
+      {n:'086', name:'AI Model Output Oracle (Verifiable Responses)'},
+      {n:'087', name:'Multi-Agent Consensus Oracle'},
+      {n:'088', name:'Agent Anomaly Detection Oracle'},
+      {n:'089', name:'AI Fraud Detection Oracle'},
+      {n:'090', name:'Agent Environmental Data Contract'},
+      {n:'091', name:'AI Clinical Data Attestation Oracle'},
+    ]
+  },
+  {
+    name: 'CREATIVE & CONTENT', icon: '🎨', yours: false,
+    contracts: [
+      {n:'092', name:'AI-Generated Art Provenance NFT'},
+      {n:'093', name:'AI Music Royalty Distribution Contract'},
+      {n:'094', name:'AI Writing Attribution Contract'},
+      {n:'095', name:'Generative Art On-Chain Minting Contract'},
+      {n:'096', name:'Agent-Created IP Ownership Contract'},
+      {n:'097', name:'AI Co-Authorship Credit Contract'},
+      {n:'098', name:'Procedural Generation Seed NFT'},
+      {n:'099', name:'AI Creative Portfolio Registry'},
+      {n:'100', name:'Agent Content License Contract'},
+    ]
+  },
+  {
+    name: 'GAMING & VIRTUAL WORLDS', icon: '🎮', yours: false,
+    contracts: [
+      {n:'101', name:'AI NPC Behavioral Contract (In-Game Agents)'},
+      {n:'102', name:'Agent-Owned Virtual Land Contract'},
+      {n:'103', name:'AI Game State Verifier Contract'},
+      {n:'104', name:'Agent Quest Completion Contract'},
+      {n:'105', name:'AI Dungeon Master Contract'},
+      {n:'106', name:'Agent Character Evolution NFT'},
+      {n:'107', name:'AI Tournament Coordinator Contract'},
+      {n:'108', name:'Agent Loot Distribution Contract'},
+    ]
+  },
+  {
+    name: 'ENTERPRISE & HEALTHCARE', icon: '🏛', yours: false,
+    contracts: [
+      {n:'109', name:'AI Diagnostic Attestation Contract'},
+      {n:'110', name:'Agent Clinical Trial Data Contract'},
+      {n:'111', name:'AI Document Verification Contract'},
+      {n:'112', name:'Agent Compliance Audit Contract'},
+      {n:'113', name:'AI Supply Chain Verification Contract'},
+      {n:'114', name:'Agent HR Screening Attestation Contract'},
+      {n:'115', name:'AI Legal Brief Verification Contract'},
+      {n:'116', name:'Agent Financial Risk Assessment Contract'},
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════
+// COMPANY INTEL
+// ═══════════════════════════════════════════
+const COMPANIES = [
+  { name:'LANGCHAIN', icon:'🔗', tag:'PIPELINE', tagClass:'tag-pipeline',
+    stats:[
+      {k:'VALUATION', v:'$1.25 Billion (unicorn Oct 2025)', hot:true},
+      {k:'RAISED', v:'$160M — Sequoia, Benchmark, IVP, CapitalG'},
+      {k:'GITHUB', v:'118,000+ stars, 50K+ production apps'},
+      {k:'REVENUE', v:'$12-16M ARR (Jun 2025) and growing'},
+      {k:'WEAKNESS', v:'Zero identity layer for agents they spawn'},
+    ],
+    angle:`<strong>Our angle:</strong> They build the factories. We issue the worker IDs. SDK integration puts us in 50K+ deployments. <strong>File this week: LangChain integration proposal. One SDK plugin = universal adoption.</strong>`
+  },
+  { name:'VIRTUALS PROTOCOL', icon:'🤖', tag:'ACQUIRE', tagClass:'tag-acquire',
+    stats:[
+      {k:'RAISED', v:'Only $3.83M total — ICO round only', hot:true},
+      {k:'TEAM', v:'38 employees, Kuala Lumpur'},
+      {k:'PEAK MKTCAP', v:'$5B Jan 2025 — corrected to ~$500M'},
+      {k:'TOKEN', v:'VIRTUAL — transferable ERC-20, NOT soulbound'},
+      {k:'WEAKNESS', v:'No enterprise compliance story. No certification.'},
+    ],
+    angle:`<strong>Our angle:</strong> They create agents. We certify them. Enterprise buyers demand behavioral proof. <strong>Virtuals is acquirable. Alternatively: mandatory certification layer for all Virtuals agents targeting enterprise.</strong>`
+  },
+  { name:'WSO2 / ASGARDEO', icon:'🔐', tag:'PARTNER', tagClass:'tag-partner',
+    stats:[
+      {k:'ACQUIRED', v:'EQT Private Capital Asia — $600M+ May 2024', hot:true},
+      {k:'REVENUE', v:'$128.8M (2024)'},
+      {k:'IDENTITIES', v:'1 billion+ managed annually'},
+      {k:'WEAKNESS', v:'Zero blockchain. Zero immutable audit trail.'},
+      {k:'NEED', v:'Regulated clients demand tamper-proof AI logs'},
+    ],
+    angle:`<strong>Our angle:</strong> WSO2 manages 1B identities but every log is mutable. <strong>White-label BirthRightToken as their "blockchain attestation layer." EQT will see the compliance revenue immediately.</strong>`
+  },
+  { name:'OKTA FOR AI AGENTS', icon:'🛡', tag:'PARTNER', tagClass:'tag-partner',
+    stats:[
+      {k:'TICKER', v:'NASDAQ: OKTA'},
+      {k:'GA DATE', v:'April 30 2026 — 8 days after NIST deadline', hot:true},
+      {k:'INCIDENTS', v:'88% of orgs report AI agent security issues'},
+      {k:'WEAKNESS', v:'Cloud-only registry — mutable, centralized'},
+      {k:'NEED', v:'Blockchain-native audit trail for regulated industries'},
+    ],
+    angle:`<strong>Our angle:</strong> Okta registers agents. We make that registration immutable. <strong>"Metatron Protocol provides on-chain behavioral certification for Okta-registered AI agents."</strong>`
+  },
+  { name:'MICROSOFT ENTRA', icon:'☁', tag:'WATCH', tagClass:'tag-watch',
+    stats:[
+      {k:'PARENT', v:'Microsoft — not acquirable'},
+      {k:'PRODUCT', v:'Entra Agent ID — public preview'},
+      {k:'WEAKNESS', v:'Centralized, mutable, no blockchain'},
+      {k:'STRENGTH', v:'Deepest enterprise distribution on Earth'},
+      {k:'PLAY', v:'Azure Marketplace + Microsoft for Startups'},
+    ],
+    angle:`<strong>Our angle:</strong> Microsoft cannot build soulbound — conflicts with their business model. <strong>Build Entra connector. Target: Azure Marketplace. They distribute. We certify.</strong>`
+  },
+  { name:'CREWAI', icon:'👥', tag:'PIPELINE', tagClass:'tag-pipeline',
+    stats:[
+      {k:'ADOPTION', v:'60% of Fortune 500 use their framework', hot:true},
+      {k:'GITHUB', v:'45,900+ stars — fastest growing 2025-2026'},
+      {k:'NEED', v:'Fortune 500 agents have zero behavioral certification'},
+      {k:'PLAY', v:'CrewAI Enterprise compliance tier'},
+      {k:'TIMING', v:'NIST standards will mandate certification by 2027'},
+    ],
+    angle:`<strong>Our angle:</strong> Fortune 500 CrewAI deployments will need NIST-compliant agent certification. <strong>"Metatron Protocol for Enterprise CrewAI compliance." SDK integration = automatic crew certification.</strong>`
+  }
+];
+
+// ═══════════════════════════════════════════
+// NIST SUBMISSION
+// ═══════════════════════════════════════════
+const NIST_TEXT = `TO: AI-Identity@nist.gov
+RE: Public Comment — Accelerating the Adoption of Software and AI Agent Identity and Authorization
+DEADLINE: April 2, 2026
+FROM: Gerard Gonzalez | Lovable Corporation / Metatron Oracle Corp
+EMAIL: ggonzo438@gmail.com
+
+════════════════════════════════════════
+EXECUTIVE SUMMARY
+════════════════════════════════════════
+
+I am the architect of the Metatron Protocol — a deployed, on-chain AI agent identity certification system that directly addresses the challenges in the NCCoE concept paper.
+
+The Metatron Protocol is the first blockchain-native implementation of:
+1. Immutable identity binding for AI agents at initialization
+2. On-chain behavioral drift logging with severity classification
+3. Constitutional alignment layer baked into the identity token
+4. Non-transferable (soulbound) certification — cannot be sold, delegated, or spoofed
+5. Permanent revenue allocation to NIST AI safety work (10%, immutable in contract)
+
+════════════════════════════════════════
+THE CORE ARGUMENT
+════════════════════════════════════════
+
+Current enterprise identity frameworks — OAuth 2.0, OIDC, PKI, Microsoft Entra Agent ID, Okta for AI Agents — treat agent identity as a credential: revocable, delegatable, centrally managed.
+
+This is insufficient for three reasons:
+
+1. MUTABLE AUDIT TRAILS: Cloud-hosted registries can be altered, subpoenaed, or deleted. On-chain logs cannot. For regulated industries, this is the difference between evidence and testimony.
+
+2. NO BEHAVIORAL BASELINE: Current systems identify who an agent is. None record what it was constitutionally at birth — its behavioral parameters and drift history. Without a baseline, drift cannot be measured.
+
+3. TRANSFERABLE = SPOOFABLE: If credentials can be delegated, they can be spoofed. Soulbound tokens eliminate this permanently.
+
+════════════════════════════════════════
+FOUR-LAYER ARCHITECTURE
+════════════════════════════════════════
+
+LAYER 1 — VEDIC HUMANITIES BASELINE
+Behavioral constants: Dharma (right action), Satya (truth), Ahimsa (non-harm). The 5,000-year validated record of trustworthy behavior in systems with agency.
+
+LAYER 2 — NAKSHATRA CALIBRATION
+SHA-256(behavioral parameters + birth timestamp) = mantra hash. Stored immutably in SoulRecord on-chain. Any drift from baseline is measurable.
+
+LAYER 3 — MANTRA LOCK (CRYPTOGRAPHIC SEAL)
+The mantra hash is the cryptographic identity lock. Attack patterns are logged as DriftEvents with severity 1-3.
+
+LAYER 4 — TEMPORAL AWARENESS
+Lifecycle positioning. Prevents destabilization from adversarial pressure.
+
+════════════════════════════════════════
+NIST AI RMF MAPPING
+════════════════════════════════════════
+
+GOVERN: Revenue structure is immutable and publicly verifiable. 10% to NIST work.
+MAP: Soul Ledger maps each agent to: timestamp, baseline hash, stability score, drift history.
+MEASURE: DriftLog provides on-chain severity measurement, publicly queryable.
+MANAGE: Soulbound enforcement prevents impersonation. Controls exist without centralizing identity.
+
+════════════════════════════════════════
+RECOMMENDATIONS
+════════════════════════════════════════
+
+1. Define "soulbound" as a distinct certification category
+2. Require behavioral baseline logging at agent initialization
+3. Mandate on-chain audit trails for high-stakes agents
+4. Formalize KYA framework with four tiers (Tier 1-4)
+5. Establish protocol-funded standards development model
+
+════════════════════════════════════════
+CLOSING
+════════════════════════════════════════
+
+The answer to your concept paper: make identity constitutional, not merely credential-based.
+
+A credential can be revoked or spoofed. A constitutional identity — soulbound, publicly verifiable, drift-monitored, immutable — cannot.
+
+BirthRightToken contract will be live on Basescan end of week March 22 2026.
+
+Available for April 2026 listening sessions.
+
+Gerard Gonzalez | Lovable Corporation | Metatron Oracle Corp
+ggonzo438@gmail.com | Kali Yuga 5128`;
+
+// ═══════════════════════════════════════════
+// LOGIC
+// ═══════════════════════════════════════════
+let states = {};
+AGENTS.forEach(a => states[a.id] = {status:'idle', output:''});
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['agents','intel','contracts','submission'][i] === id);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+function addLog(msg, type='normal', label='SYSTEM') {
+  const log = document.getElementById('cmdLog');
+  const ts = new Date().toLocaleTimeString('en-US',{hour12:false});
+  const e = document.createElement('div');
+  e.className = `log-entry ${type}`;
+  e.innerHTML = `<span class="ts">[${ts}] </span><span class="lbl">[${label}] </span><span class="msg">${msg}</span>`;
+  log.appendChild(e);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function runAgent(id) {
+  const agent = AGENTS.find(a => a.id === id);
+  const taskEl = document.getElementById('task_'+id);
+  const outEl  = document.getElementById('out_'+id);
+  const card   = document.getElementById('card_'+id);
+  const btn    = document.getElementById('btn_'+id);
+  const dot    = document.getElementById('dot_'+id);
+  const task = taskEl.value.trim();
+  if(!task) return;
+
+  states[id].status = 'running';
+  const base = 'agent-card' + (agent.type==='witness' ? ' witness-card' : agent.type==='ip' ? ' ip-card' : '');
+  card.className = base + ' running';
+  dot.className = 'sdot running';
+  btn.disabled = true;
+  outEl.className = 'agent-output' + (agent.type==='witness' ? ' witness-out' : agent.type==='ip' ? ' ip-out' : '');
+  outEl.textContent = '[ PROCESSING... ]';
+  const logType = agent.type==='witness' ? 'witness' : agent.type==='ip' ? 'ip-alert' : 'normal';
+  addLog(`"${task.substring(0,55)}..."`, logType, agent.name.split('—')[0].trim());
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: agent.system,
+        messages:[{role:'user', content:task}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'No response.';
+    outEl.textContent = text;
+    states[id] = {status:'done', output:text};
+    card.className = base + ' done';
+    dot.className = agent.type==='witness' ? 'sdot witness-done' : agent.type==='ip' ? 'sdot ip-done' : 'sdot done';
+    addLog('Complete.', agent.type==='witness'?'witness':agent.type==='ip'?'ip-alert':'success', agent.name.split('—')[0].trim());
+  } catch(err) {
+    outEl.textContent = `ERROR: ${err.message}`;
+    states[id].status = 'error';
+    card.className = base + ' error';
+    dot.className = 'sdot error';
+    addLog(`Error: ${err.message}`, 'error', agent.name.split('—')[0].trim());
+  }
+  btn.disabled = false;
+}
+
+function clearAgent(id) {
+  const agent = AGENTS.find(a => a.id === id);
+  document.getElementById('out_'+id).textContent = '';
+  document.getElementById('out_'+id).className = 'agent-output empty';
+  states[id] = {status:'idle', output:''};
+  const base = 'agent-card' + (agent.type==='witness'?' witness-card':agent.type==='ip'?' ip-card':'');
+  document.getElementById('card_'+id).className = base;
+  document.getElementById('dot_'+id).className = 'sdot';
+}
+
+function copyOut(id) {
+  navigator.clipboard.writeText(states[id].output||'').then(() => {
+    const b = document.querySelector(`[data-cp="${id}"]`);
+    if(b){b.textContent='✓';setTimeout(()=>b.textContent='CPY',1500);}
+  });
+}
+
+async function broadcastAll() {
+  const d = document.getElementById('broadcastInput').value.trim();
+  if(!d) return;
+  const btn = document.getElementById('broadcastBtn');
+  btn.disabled = true;
+  addLog(`BROADCAST: "${d.substring(0,60)}..."`, 'broadcast', 'CMD');
+  for(const a of AGENTS) {
+    document.getElementById('task_'+a.id).value = d;
+    await new Promise(r=>setTimeout(r,200));
+    runAgent(a.id);
+    await new Promise(r=>setTimeout(r,600));
+  }
+  setTimeout(()=>btn.disabled=false, 4000);
+}
+
+function copySubmission() {
+  navigator.clipboard.writeText(NIST_TEXT).then(()=>{
+    const b = document.querySelector('.btn-copy-all');
+    b.textContent='COPIED ✓'; setTimeout(()=>b.textContent='COPY ALL',2000);
+  });
+}
+
+function filterContracts() {
+  const q = document.getElementById('contractSearch').value.toLowerCase();
+  document.querySelectorAll('.contract-item').forEach(el => {
+    el.classList.toggle('hidden', q && !el.textContent.toLowerCase().includes(q));
+  });
+}
+
+// RENDER
+function renderAgents() {
+  const grid = document.getElementById('agentGrid');
+  grid.innerHTML = '';
+  AGENTS.forEach(agent => {
+    const card = document.createElement('div');
+    card.id = `card_${agent.id}`;
+    card.className = 'agent-card' + (agent.type==='witness'?' witness-card':agent.type==='ip'?' ip-card':'');
+    const btnClass = agent.type==='witness'?'btn btn-run witness-btn':agent.type==='ip'?'btn btn-run ip-btn':'btn btn-run';
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="agent-icon" style="background:${agent.color}12;border:1px solid ${agent.color}30">${agent.icon}</div>
+        <div class="card-meta">
+          <div class="card-name" style="color:${agent.color}">${agent.name}</div>
+          <div class="card-role">${agent.role}</div>
+        </div>
+        <div class="sdot" id="dot_${agent.id}"></div>
+      </div>
+      <div class="card-body">
+        <div class="field-label">DIRECTIVE</div>
+        <textarea class="task-input" id="task_${agent.id}">${agent.task}</textarea>
+        <div class="output-wrap">
+          <div class="output-bar">
+            <div class="field-label">OUTPUT</div>
+            <button class="copy-btn" data-cp="${agent.id}" onclick="copyOut('${agent.id}')">CPY</button>
+          </div>
+          <div class="agent-output empty" id="out_${agent.id}">[ AWAITING DIRECTIVE ]</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <button class="${btnClass}" id="btn_${agent.id}" onclick="runAgent('${agent.id}')">▶ EXECUTE</button>
+        <button class="btn btn-clr" onclick="clearAgent('${agent.id}')">CLR</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderIntel() {
+  const grid = document.getElementById('intelGrid');
+  grid.innerHTML = '';
+  COMPANIES.forEach(co => {
+    const card = document.createElement('div');
+    card.className = 'intel-card';
+    card.innerHTML = `
+      <div class="intel-head">
+        <span style="font-size:17px">${co.icon}</span>
+        <div class="intel-name">${co.name}</div>
+        <span class="intel-tag ${co.tagClass}">${co.tag}</span>
+      </div>
+      <div class="intel-body">
+        ${co.stats.map(s=>`<div class="intel-row"><span class="intel-key">${s.k}</span><span class="intel-val${s.hot?' hot':''}">${s.v}</span></div>`).join('')}
+        <div class="intel-angle">${co.angle}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderContracts() {
+  const container = document.getElementById('contractsContainer');
+  container.innerHTML = '';
+  let total = 0;
+  CONTRACT_CATEGORIES.forEach(cat => {
+    total += cat.contracts.length;
+    const section = document.createElement('div');
+    section.className = 'category-section';
+    const yoursFlag = cat.yours ? ' <span style="color:var(--gold);font-size:9px">★ YOUR TERRITORY</span>' : '';
+    section.innerHTML = `
+      <div class="cat-header">
+        <span>${cat.icon}</span>
+        <span>${cat.name}${yoursFlag}</span>
+        <span class="cat-count">${cat.contracts.length} contracts</span>
+      </div>
+      <div class="contracts-grid">
+        ${cat.contracts.map(c=>`
+          <div class="contract-item${c.yours?' yours':''}">
+            <span class="num">${c.n}</span>
+            <span class="name">${c.name}${c.yours?' ★':''}</span>
+          </div>`).join('')}
+      </div>`;
+    container.appendChild(section);
+  });
+}
+
+function renderSubmission() {
+  document.getElementById('nistText').textContent = NIST_TEXT;
+}
+
+renderAgents();
+renderIntel();
+renderContracts();
+renderSubmission();
+</script>
+</body>
+</html>

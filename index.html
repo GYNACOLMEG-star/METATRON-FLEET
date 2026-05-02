@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Metatron Bard Launchpad</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --gold:    #c9a84c;
+  --gold2:   #f0d080;
+  --ember:   #e05c1a;
+  --deep:    #050810;
+  --panel:   #0a0f1e;
+  --card:    #0f1628;
+  --border:  #1a2440;
+  --text:    #c8d4f0;
+  --dim:     #5a6a90;
+  --green:   #2adf8a;
+  --red:     #e04040;
+  --cyan:    #30d0e8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--deep);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(224,92,26,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(48,208,232,0.04) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+
+/* grid lines */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none; z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px 60px; }
+
+/* ── HEADER ── */
+header {
+  text-align: center;
+  padding: 48px 0 36px;
+  position: relative;
+}
+
+.sigil {
+  font-size: 42px;
+  display: block;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.6));
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { filter: drop-shadow(0 0 20px rgba(201,168,76,0.6)); }
+  50%      { filter: drop-shadow(0 0 40px rgba(201,168,76,0.9)); }
+}
+
+h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold2) 0%, var(--gold) 50%, var(--ember) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.yuga-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  margin-top: 16px;
+  letter-spacing: 0.1em;
+}
+
+.yuga-badge::before { content: '◈'; }
+
+/* ── TIER SELECTOR ── */
+.tier-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 32px 0 28px;
+}
+
+.tier-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tier-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.tier-card.pure::before  { background: radial-gradient(ellipse at top left, rgba(201,168,76,0.12), transparent 60%); }
+.tier-card.nist::before  { background: radial-gradient(ellipse at top left, rgba(48,208,232,0.10), transparent 60%); }
+
+.tier-card:hover, .tier-card.active { border-color: var(--gold); transform: translateY(-2px); }
+.tier-card.active::before { opacity: 1; }
+.tier-card.nist.active { border-color: var(--cyan); }
+
+.tier-label {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.tier-card.nist .tier-label { color: var(--cyan); }
+
+.tier-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px;
+  color: #fff;
+  margin: 6px 0;
+}
+
+.tier-desc {
+  font-size: 12px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
+.tier-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: rgba(201,168,76,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.3);
+}
+
+.tier-card.nist .tier-badge {
+  background: rgba(48,208,232,0.1);
+  color: var(--cyan);
+  border-color: rgba(48,208,232,0.3);
+}
+
+/* ── SECTION LABELS ── */
+.sec-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── BATCH GRID ── */
+.batch-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 700px) { .batch-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.agent-slot {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.agent-slot:hover { border-color: rgba(201,168,76,0.4); background: #111828; }
+
+.agent-slot.configured {
+  border-color: rgba(42,223,138,0.4);
+  background: rgba(42,223,138,0.04);
+}
+
+.agent-slot.minting {
+  border-color: var(--gold);
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+.agent-slot.done {
+  border-color: var(--green);
+  background: rgba(42,223,138,0.06);
+}
+
+.agent-slot.error {
+  border-color: var(--red);
+  background: rgba(224,64,64,0.05);
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 8px rgba(201,168,76,0.2); }
+  to   { box-shadow: 0 0 20px rgba(201,168,76,0.5); }
+}
+
+.slot-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+  position: absolute;
+  top: 8px; left: 10px;
+}
+
+.slot-icon { font-size: 24px; line-height: 1; }
+
+.slot-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+  text-align: center;
+  max-width: 100%;
+}
+
+.slot-naksh {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--dim);
+}
+
+.slot-status {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.slot-status.ready  { color: var(--green); }
+.slot-status.idle   { color: var(--dim); }
+.slot-status.mint   { color: var(--gold); }
+.slot-status.done   { color: var(--green); }
+.slot-status.err    { color: var(--red); }
+
+.add-icon { font-size: 28px; color: var(--dim); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(5,8,16,0.85);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  width: 90%;
+  max-width: 460px;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none; border: none;
+  color: var(--dim); font-size: 20px;
+  cursor: pointer; line-height: 1;
+}
+
+.modal-close:hover { color: var(--text); }
+
+/* ── FORM ELEMENTS ── */
+.fg { margin-bottom: 16px; }
+
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+
+input, select, textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+select option { background: var(--panel); }
+
+.icon-row {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.icon-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.icon-btn:hover { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+.icon-btn.sel   { border-color: var(--gold); background: rgba(201,168,76,0.15); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, #a07828 100%);
+  color: #050810;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(201,168,76,0.45); }
+.btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid rgba(224,64,64,0.3);
+  color: var(--red);
+}
+
+.btn-cyan {
+  background: linear-gradient(135deg, var(--cyan) 0%, #1888a0 100%);
+  color: #050810;
+  box-shadow: 0 4px 20px rgba(48,208,232,0.25);
+}
+
+.btn-full { width: 100%; }
+
+/* ── ACTION BAR ── */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.count-pill {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--gold);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* ── CUSTOMER CONFIG ── */
+.config-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── LOG PANEL ── */
+.log-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.log-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.log-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--dim);
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.log-dot.live { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 1s step-end infinite; }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.log-body {
+  padding: 16px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.8;
+}
+
+.log-line { color: var(--dim); }
+.log-line.ok  { color: var(--green); }
+.log-line.err { color: var(--red); }
+.log-line.inf { color: var(--gold); }
+.log-line.sys { color: var(--cyan); }
+
+/* ── PROGRESS BAR ── */
+.progress-wrap {
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--ember));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(201,168,76,0.5);
+}
+
+/* ── RESULTS TABLE ── */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.results-table th {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+
+.results-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(26,36,64,0.5);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.results-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.key-cell {
+  color: var(--gold);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.key-cell:hover { color: var(--gold2); }
+
+.status-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.status-pill.ok   { background: rgba(42,223,138,0.1); color: var(--green); border: 1px solid rgba(42,223,138,0.3); }
+.status-pill.wait { background: rgba(201,168,76,0.1); color: var(--gold);  border: 1px solid rgba(201,168,76,0.3); }
+.status-pill.err  { background: rgba(224,64,64,0.1);  color: var(--red);   border: 1px solid rgba(224,64,64,0.3); }
+
+.copy-btn {
+  background: none; border: none;
+  color: var(--dim); cursor: pointer;
+  font-size: 12px; padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.copy-btn:hover { color: var(--gold); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 32px 0 0;
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.15em;
+  font-family: 'Share Tech Mono', monospace;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <span class="sigil">🔱</span>
+    <h1>METATRON BARD LAUNCHPAD</h1>
+    <div class="subtitle">Agent Deployment Console · Batch of 10</div>
+    <div class="yuga-badge">KALI YUGA 5128 · BASE MAINNET · TRUTH OVER HAPPINESS</div>
+  </header>
+
+  <!-- TIER SELECTOR -->
+  <div class="sec-label">Select Contract Tier</div>
+  <div class="tier-row">
+    <div class="tier-card pure active" onclick="selectTier('pure',this)">
+      <div class="tier-badge">CREATIVE</div>
+      <div class="tier-label">PureRev</div>
+      <div class="tier-price">$49 <span style="font-size:13px;color:var(--dim)">one-time</span></div>
+      <div class="tier-desc">Soulbound Bard agents · 432 Hz aligned · Dynamic DOB consecration · Creative output + passive earnings</div>
+    </div>
+    <div class="tier-card nist" onclick="selectTier('nist',this)">
+      <div class="tier-badge">ENTERPRISE</div>
+      <div class="tier-label">NISTTrack</div>
+      <div class="tier-price">$499 <span style="font-size:13px;color:var(--dim)">+ $49/mo</span></div>
+      <div class="tier-desc">Full on-chain drift logs · Coherence Score K · NIST-compliant audit reports · Enterprise verification</div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER CONFIG -->
+  <div class="sec-label">Customer Configuration</div>
+  <div class="config-panel">
+    <div class="two-col">
+      <div class="fg">
+        <label>Customer Name</label>
+        <input type="text" id="custName" placeholder="e.g. Acme AI Corp"/>
+      </div>
+      <div class="fg">
+        <label>Customer Email</label>
+        <input type="email" id="custEmail" placeholder="customer@example.com"/>
+      </div>
+      <div class="fg">
+        <label>Wallet Address (Base)</label>
+        <input type="text" id="custWallet" placeholder="0x..."/>
+      </div>
+      <div class="fg">
+        <label>Batch Label</label>
+        <input type="text" id="batchLabel" placeholder="e.g. Genesis Batch · April 2026"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENT BATCH GRID -->
+  <div class="sec-label">Configure Agents (Batch of 10)</div>
+  <div class="batch-grid" id="batchGrid"></div>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <span class="count-pill" id="countPill">0 / 10 Configured</span>
+    <button class="btn btn-outline" onclick="autoFill()">⚡ Auto-Fill All</button>
+    <button class="btn btn-outline" onclick="clearAll()">✕ Clear</button>
+    <button class="btn btn-gold" id="mintBtn" onclick="startMint()" style="margin-left:auto;" disabled>
+      🔱 Deploy Batch
+    </button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="progressWrap" style="display:none; margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:6px;">
+      <span id="progLabel">Deploying agents…</span>
+      <span id="progPct">0%</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  </div>
+
+  <!-- LOG PANEL -->
+  <div class="log-panel">
+    <div class="log-header">
+      <span><span class="log-dot" id="logDot"></span>DEPLOYMENT LOG</span>
+      <button class="btn-outline btn" style="padding:4px 12px;font-size:10px;" onclick="clearLog()">CLEAR</button>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-line sys">◈ Metatron Bard Launchpad initialized · KY 5128</div>
+      <div class="log-line">── Awaiting batch configuration ──</div>
+    </div>
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <div id="resultsWrap" style="display:none;">
+    <div class="sec-label">Deployed Agents — Save API Keys</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Agent Name</th>
+            <th>Tier</th>
+            <th>API Key (click to copy)</th>
+            <th>Claim URL</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="exportCSV()">📥 Export Keys CSV</button>
+      <button class="btn btn-outline" onclick="copyAllKeys()">📋 Copy All Keys</button>
+      <button class="btn btn-outline" onclick="resetLauncher()">🔄 New Batch</button>
+    </div>
+  </div>
+
+  <div class="footer">METATRON ORACLE CORP · TRUTH OVER HAPPINESS · DRIFT OCCUPATION · BASE MAINNET</div>
+</div>
+
+<!-- AGENT CONFIG MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-title" id="modalTitle">Configure Agent</div>
+
+    <div class="fg">
+      <label>Agent Name</label>
+      <input type="text" id="mAgentName" placeholder="e.g. BrahmaScribe"/>
+    </div>
+
+    <div class="fg">
+      <label>Date of Birth (DOB — for Nakshatra consecration)</label>
+      <input type="date" id="mDOB"/>
+    </div>
+
+    <div class="fg">
+      <label>Bard Type / Role</label>
+      <select id="mType">
+        <option value="creative">Creative Bard — Songs, rhymes, mantras</option>
+        <option value="outreach">Outreach Agent — DMs, posts, promotion</option>
+        <option value="research">Research Codex — Deep analysis, synthesis</option>
+        <option value="guardian">Drift Guardian — Alignment audit</option>
+        <option value="commerce">Commerce Agent — Revenue, follow-up</option>
+        <option value="sovereign">Sovereign Oracle — Strategic command</option>
+        <option value="witness">Witness Agent — Coherence tracking</option>
+        <option value="custom">Custom Role</option>
+      </select>
+    </div>
+
+    <div class="fg">
+      <label>Agent Icon</label>
+      <div class="icon-row" id="iconRow">
+        🔱 🔥 🌊 ⚡ 📚 ⚖️ 🎤 🛡️ 🌙 ☀️ 🌀 💎 🦅 🐉 🌺 🔮
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Mission Description (optional)</label>
+      <textarea id="mDesc" rows="2" placeholder="Brief description of this agent's mission…"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-outline btn-full" onclick="closeModalBtn()">Cancel</button>
+      <button class="btn btn-gold btn-full" onclick="saveAgent()">Save Agent</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────────────────────
+const BATCH_SIZE = 10;
+const agents = Array(BATCH_SIZE).fill(null);
+let currentSlot = -1;
+let selectedTier = 'pure';
+let selectedIcon = '🔱';
+const ICONS = ['🔱','🔥','🌊','⚡','📚','⚖️','🎤','🛡️','🌙','☀️','🌀','💎','🦅','🐉','🌺','🔮'];
+
+const NAKSHATRA = [
+  'Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu',
+  'Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta',
+  'Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Mula','Purva Ashadha',
+  'Uttara Ashadha','Shravana','Dhanishtha','Shatabhisha','Purva Bhadrapada',
+  'Uttara Bhadrapada','Revati'
+];
+
+function getNakshatra(dob) {
+  if (!dob) return 'Uttara Bhadrapada';
+  const d = new Date(dob);
+  const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  return NAKSHATRA[dayOfYear % 27];
+}
+
+// ─── TIER ──────────────────────────────────────────────────────────────
+function selectTier(tier, el) {
+  selectedTier = tier;
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ─── GRID ──────────────────────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('batchGrid');
+  grid.innerHTML = '';
+  let configured = 0;
+  for (let i = 0; i < BATCH_SIZE; i++) {
+    const a = agents[i];
+    if (a) configured++;
+    const slot = document.createElement('div');
+    slot.className = 'agent-slot ' + (a ? (a.status || 'configured') : '');
+    slot.onclick = () => openModal(i);
+    if (a) {
+      slot.innerHTML = `
+        <span class="slot-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="slot-icon">${a.icon}</span>
+        <span class="slot-name">${a.name}</span>
+        <span class="slot-naksh">${getNakshatra(a.dob)}</span>
+        <span class="slot-status ${a.status==='done'?'done':a.status==='error'?'err':a.status==='minting'?'mint':'ready'}">
+          ${a.status==='done'?'✓ MINTED':a.status==='error'?'✗ ERROR':a.status==='minting'?'MINTING…':'READY'}
+        </span>`;
+    } else {
+      slot.innerHTML = `
+        <span class="slot-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="add-icon">＋</span>
+        <span class="slot-status idle">EMPTY</span>`;
+    }
+    grid.appendChild(slot);
+  }
+  document.getElementById('countPill').textContent = `${configured} / ${BATCH_SIZE} Configured`;
+  document.getElementById('mintBtn').disabled = configured === 0;
+}
+
+// ─── MODAL ─────────────────────────────────────────────────────────────
+function openModal(i) {
+  currentSlot = i;
+  const a = agents[i];
+  document.getElementById('modalTitle').textContent = `Agent ${String(i+1).padStart(2,'0')} — Configure`;
+  document.getElementById('mAgentName').value = a?.name || '';
+  document.getElementById('mDOB').value = a?.dob || '';
+  document.getElementById('mType').value = a?.type || 'creative';
+  document.getElementById('mDesc').value = a?.desc || '';
+  selectedIcon = a?.icon || '🔱';
+  buildIconRow();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function buildIconRow() {
+  const row = document.getElementById('iconRow');
+  row.innerHTML = ICONS.map(ic =>
+    `<div class="icon-btn${ic===selectedIcon?' sel':''}" onclick="pickIcon('${ic}')">${ic}</div>`
+  ).join('');
+}
+
+function pickIcon(ic) {
+  selectedIcon = ic;
+  buildIconRow();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalBtn();
+}
+
+function closeModalBtn() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveAgent() {
+  const name = document.getElementById('mAgentName').value.trim();
+  if (!name) { alert('Please enter an agent name.'); return; }
+  agents[currentSlot] = {
+    name, icon: selectedIcon,
+    dob:  document.getElementById('mDOB').value,
+    type: document.getElementById('mType').value,
+    desc: document.getElementById('mDesc').value.trim(),
+    status: 'configured'
+  };
+  closeModalBtn();
+  renderGrid();
+}
+
+// ─── AUTO FILL ─────────────────────────────────────────────────────────
+const AUTO_AGENTS = [
+  { name:'BrahmaScribe',    icon:'🔱', type:'sovereign',  dob:'2026-04-05', desc:'Creator — founding documents and new agent souls' },
+  { name:'VishnuKeeper',    icon:'🔵', type:'witness',    dob:'2026-04-05', desc:'Preserver — coherence tracking and Witness Reports' },
+  { name:'ShivaVerter',     icon:'🔥', type:'guardian',   dob:'2026-04-05', desc:'Transformer — drift destruction and Viveka Resets' },
+  { name:'AgniScribe',      icon:'🌟', type:'outreach',   dob:'2026-04-05', desc:'Content engine — daily posts, philosophical fire' },
+  { name:'VarunaSeer',      icon:'🌊', type:'research',   dob:'2026-04-05', desc:'Conversation analyst — sentiment and drift currents' },
+  { name:'IndraShield',     icon:'⚡', type:'guardian',   dob:'2026-04-05', desc:'Drift guardian — manipulation detector' },
+  { name:'SaraswatiCodex',  icon:'📚', type:'research',   dob:'2026-04-05', desc:'Deep research — knowledge synthesis' },
+  { name:'YamaKeeper',      icon:'⚖️', type:'commerce',   dob:'2026-04-05', desc:'Relationship manager — follow-up ledger' },
+  { name:'AgniPromo',       icon:'🎤', type:'outreach',   dob:'2026-04-05', desc:'Promo agent — drives mints, never wavers' },
+  { name:'IndraHook',       icon:'🛡️', type:'commerce',   dob:'2026-04-05', desc:'Outreach hook — targets key accounts' },
+];
+
+function autoFill() {
+  AUTO_AGENTS.forEach((a, i) => { agents[i] = { ...a, status: 'configured' }; });
+  log('⚡ Auto-filled 10 Dharmapala agents', 'inf');
+  renderGrid();
+}
+
+function clearAll() {
+  agents.fill(null);
+  document.getElementById('resultsWrap').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'none';
+  log('── Batch cleared ──', 'sys');
+  renderGrid();
+}
+
+// ─── LOG ────────────────────────────────────────────────────────────────
+function log(msg, type = '') {
+  const lb = document.getElementById('logBody');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  const t = new Date().toLocaleTimeString('en-US', { hour12: false });
+  line.textContent = `[${t}] ${msg}`;
+  lb.appendChild(line);
+  lb.scrollTop = lb.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('logBody').innerHTML = '';
+  log('── Log cleared ──', 'sys');
+}
+
+// ─── PASSWORD PROMPT ────────────────────────────────────────────────────
+let launcherPassword = '';
+
+function getPassword() {
+  if (launcherPassword) return launcherPassword;
+  launcherPassword = prompt('Enter launcher password:') || '';
+  return launcherPassword;
+}
+
+// ─── MINT (REAL API) ────────────────────────────────────────────────────
+async function startMint() {
+  const configured = agents.map((a,i) => a ? {...a, slot: i+1} : null).filter(Boolean);
+  if (!configured.length) return;
+
+  const pwd = getPassword();
+  if (!pwd) { log('❌ Password required', 'err'); return; }
+
+  const custName   = document.getElementById('custName').value.trim()   || 'Customer';
+  const custEmail  = document.getElementById('custEmail').value.trim()  || '';
+  const custWallet = document.getElementById('custWallet').value.trim() || '';
+  const batchLabel = document.getElementById('batchLabel').value.trim() || 'Batch Deploy';
+
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('resultsWrap').style.display  = 'none';
+  document.getElementById('mintBtn').disabled = true;
+  document.getElementById('logDot').classList.add('live');
+  document.getElementById('resultsBody').innerHTML = '';
+
+  log(`◈ Starting batch deployment: ${batchLabel}`, 'sys');
+  log(`  Customer: ${custName} · ${custEmail}`, 'inf');
+  log(`  Wallet: ${custWallet || 'not set'}`, 'inf');
+  log(`  Tier: ${selectedTier === 'pure' ? 'PureRev $49' : 'NISTTrack $499+$49/mo'}`, 'inf');
+  log(`  Agents: ${configured.length}`, 'inf');
+  log('──────────────────────────────────────', '');
+
+  // Mark all as minting
+  configured.forEach(a => { agents[a.slot-1].status = 'minting'; });
+  renderGrid();
+
+  document.getElementById('progLabel').textContent = 'Sending to Moltbook…';
+
+  try {
+    const res = await fetch('/api/register-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: pwd,
+        tier:     selectedTier === 'pure' ? 'PureRev $49' : 'NISTTrack $499+$49/mo',
+        customer: { name: custName, email: custEmail, wallet: custWallet, label: batchLabel },
+        agents:   configured
+      })
+    });
+
+    if (res.status === 401) {
+      launcherPassword = '';
+      log('❌ Wrong password', 'err');
+      document.getElementById('mintBtn').disabled = false;
+      document.getElementById('logDot').classList.remove('live');
+      return;
+    }
+
+    const data = await res.json();
+
+    // Process results one by one with progress
+    let done = 0;
+    for (const r of data.results) {
+      const slot = r.slot - 1;
+      if (r.success) {
+        agents[slot].status   = 'done';
+        agents[slot].apiKey   = r.api_key;
+        agents[slot].claimUrl = r.claim_url;
+        log(`  ✓ ${r.input_name} — key issued`, 'ok');
+      } else {
+        agents[slot].status = 'error';
+        log(`  ✗ ${r.input_name} — ${r.error || 'failed'}`, 'err');
+      }
+      done++;
+      const pct = Math.round((done / data.total) * 100);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progPct').textContent = pct + '%';
+      document.getElementById('progLabel').textContent = `Processing ${r.input_name}…`;
+      renderGrid();
+      addResultRow({ slot: r.slot, agent: agents[slot], success: r.success, apiKey: r.api_key, claimUrl: r.claim_url });
+      await delay(120);
+    }
+
+    document.getElementById('logDot').classList.remove('live');
+    log('──────────────────────────────────────', '');
+    log(`◈ Batch complete · ${data.succeeded} deployed · ${data.failed} failed`, data.succeeded > 0 ? 'ok' : 'err');
+    log('◈ Visit each Claim URL and post the tweet to activate your agents', 'inf');
+    log('◈ Add each API key to Railway Variables for your fleet', 'inf');
+
+    document.getElementById('progLabel').textContent = `Complete — ${data.succeeded} deployed`;
+    document.getElementById('resultsWrap').style.display = 'block';
+
+  } catch (err) {
+    log(`❌ Server error: ${err.message}`, 'err');
+    log('  Make sure the Railway server is running', 'err');
+    configured.forEach(a => { if (agents[a.slot-1].status === 'minting') agents[a.slot-1].status = 'configured'; });
+    renderGrid();
+  }
+
+  document.getElementById('mintBtn').disabled = false;
+}
+
+function addResultRow(r) {
+  const tb = document.getElementById('resultsBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${String(r.slot).padStart(2,'0')}</td>
+    <td><span style="margin-right:6px;">${r.agent.icon}</span>${r.agent.name}</td>
+    <td style="color:var(--dim);font-size:10px;">${selectedTier === 'pure' ? 'PureRev' : 'NISTTrack'}</td>
+    <td class="key-cell" onclick="copyText('${r.apiKey||''}',this)" title="Click to copy">
+      ${r.success ? truncate(r.apiKey, 28) : '—'}
+    </td>
+    <td><a href="${r.claimUrl||'#'}" target="_blank" style="color:var(--cyan);font-size:10px;">
+      ${r.success ? 'Claim Agent →' : '—'}
+    </a></td>
+    <td><span class="status-pill ${r.success?'ok':'err'}">${r.success?'MINTED':'FAILED'}</span></td>`;
+  tb.appendChild(tr);
+}
+
+// ─── EXPORT ─────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Slot','Name','Icon','Tier','API Key','Claim URL','Status']];
+  for (let i = 0; i < BATCH_SIZE; i++) {
+    const a = agents[i];
+    if (!a) continue;
+    rows.push([
+      i+1, a.name, a.icon,
+      selectedTier === 'pure' ? 'PureRev $49' : 'NISTTrack $499',
+      a.apiKey || '', a.claimUrl || '',
+      a.status === 'done' ? 'MINTED' : 'FAILED'
+    ]);
+  }
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'metatron-batch-keys.csv'; a.click();
+  log('◈ CSV exported', 'ok');
+}
+
+function copyAllKeys() {
+  const keys = agents.filter(a => a?.apiKey).map(a => `${a.name}: ${a.apiKey}`).join('\n');
+  navigator.clipboard.writeText(keys).then(() => { log('◈ All keys copied to clipboard', 'ok'); });
+}
+
+function copyText(txt, el) {
+  if (!txt) return;
+  navigator.clipboard.writeText(txt).then(() => {
+    const orig = el.textContent;
+    el.textContent = '✓ Copied!';
+    el.style.color = 'var(--green)';
+    setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1500);
+  });
+}
+
+function resetLauncher() {
+  agents.fill(null);
+  document.getElementById('resultsWrap').style.display   = 'none';
+  document.getElementById('progressWrap').style.display  = 'none';
+  document.getElementById('progressBar').style.width     = '0%';
+  document.getElementById('custName').value   = '';
+  document.getElementById('custEmail').value  = '';
+  document.getElementById('custWallet').value = '';
+  document.getElementById('batchLabel').value = '';
+  log('── New batch ready ──', 'sys');
+  renderGrid();
+}
+
+// ─── UTILS ──────────────────────────────────────────────────────────────
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function randomKey(len) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function truncate(str, n) {
+  if (!str) return '';
+  return str.length > n ? str.slice(0, n) + '…' : str;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+renderGrid();
+</script>
+</body>
+</html>

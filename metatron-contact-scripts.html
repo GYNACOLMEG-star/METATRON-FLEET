@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metatron Protocol — Contact Scripts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#c8a96e;--bg:#050311;--text:#ede4d0;--dim:rgba(237,228,208,.44);--border:rgba(200,169,110,.17);--surface:rgba(255,255,255,.027);--green:#4caf7d;--amber:#f0a050;--blue:#6090d0;--red:#cf6679;--purple:#a070d0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.9;}
+.cosmos{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 20% 10%,rgba(70,35,155,.3) 0%,transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(20,50,120,.22) 0%,transparent 55%),radial-gradient(ellipse at 50% 50%,rgba(8,4,28,.9) 0%,#050311 70%);}
+.stars{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 7% 11%,rgba(255,255,255,.8),transparent),radial-gradient(1px 1px at 23% 44%,rgba(255,255,255,.5),transparent),radial-gradient(1.5px 1.5px at 40% 20%,rgba(200,180,255,.7),transparent),radial-gradient(1px 1px at 60% 73%,rgba(255,255,255,.45),transparent),radial-gradient(1px 1px at 78% 14%,rgba(255,255,255,.85),transparent),radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 15% 83%,rgba(255,255,255,.6),transparent),radial-gradient(1px 1px at 50% 95%,rgba(255,255,255,.35),transparent);}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:52px 24px 140px;}
+
+.hdr{text-align:center;margin-bottom:52px;}
+.seal{font-size:56px;display:block;margin-bottom:14px;filter:drop-shadow(0 0 28px rgba(200,169,110,.78));animation:breathe 5s ease-in-out infinite;}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.08)}}
+h1{font-family:'Cinzel',serif;font-size:clamp(16px,3.8vw,27px);color:var(--gold);letter-spacing:.13em;text-shadow:0 0 55px rgba(200,169,110,.42);}
+.sub{font-size:11px;color:var(--dim);letter-spacing:.42em;text-transform:uppercase;margin-top:9px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:30px 36px;margin-bottom:20px;}
+.clabel{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.44em;color:rgba(200,169,110,.48);text-transform:uppercase;margin-bottom:20px;}
+
+.sh{text-align:center;margin:52px 0 28px;}
+.sh h2{font-family:'Cinzel',serif;font-size:clamp(14px,2.8vw,21px);color:var(--gold);letter-spacing:.16em;}
+.sh .desc{font-size:15px;color:var(--dim);font-style:italic;margin-top:10px;max-width:580px;margin-left:auto;margin-right:auto;line-height:1.85;}
+.sh .line{width:110px;height:1px;background:linear-gradient(90deg,transparent,rgba(200,169,110,.4),transparent);margin:13px auto 0;}
+
+/* Contact block */
+.contact-block{margin-bottom:28px;border:1px solid rgba(200,169,110,.12);border-radius:3px;overflow:hidden;}
+.contact-header{background:rgba(200,169,110,.06);padding:16px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(200,169,110,.1);}
+.contact-icon{font-size:26px;}
+.contact-who{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);letter-spacing:.08em;}
+.contact-where{font-size:12px;color:var(--dim);margin-top:3px;}
+.contact-body{padding:22px 24px;}
+
+.badge{display:inline-block;border-radius:2px;padding:3px 11px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;}
+.badge-green{background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.25);color:var(--green);}
+.badge-amber{background:rgba(240,160,80,.09);border:1px solid rgba(240,160,80,.22);color:var(--amber);}
+.badge-blue{background:rgba(96,144,208,.09);border:1px solid rgba(96,144,208,.22);color:var(--blue);}
+.badge-purple{background:rgba(160,112,208,.09);border:1px solid rgba(160,112,208,.22);color:var(--purple);}
+
+/* Script box */
+.script-box{background:rgba(0,0,0,.35);border:1px solid rgba(200,169,110,.18);border-radius:2px;padding:22px 26px;margin:14px 0;position:relative;}
+.script-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.38em;color:rgba(200,169,110,.42);text-transform:uppercase;margin-bottom:12px;}
+.script-text{font-size:16px;color:var(--text);line-height:1.95;font-style:italic;}
+.script-text .highlight{color:var(--gold);font-style:normal;font-weight:500;}
+.copy-btn{position:absolute;top:14px;right:16px;background:rgba(200,169,110,.08);border:1px solid rgba(200,169,110,.2);border-radius:2px;padding:5px 13px;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.2em;color:rgba(200,169,110,.6);cursor:pointer;text-transform:uppercase;transition:all .25s;}
+.copy-btn:hover{background:rgba(200,169,110,.16);color:var(--gold);border-color:rgba(200,169,110,.4);}
+.copy-btn.copied{color:var(--green);border-color:rgba(76,175,125,.4);}
+
+.note{font-size:13px;color:var(--dim);line-height:1.85;margin-top:12px;padding:12px 16px;background:rgba(255,255,255,.02);border-left:2px solid rgba(200,169,110,.2);border-radius:0 2px 2px 0;}
+.note strong{color:var(--text);}
+
+.where-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.where-chip{background:rgba(255,255,255,.03);border:1px solid rgba(200,169,110,.12);border-radius:2px;padding:6px 14px;font-size:13px;color:var(--dim);}
+.where-chip span{color:var(--gold);}
+
+.div{text-align:center;color:rgba(200,169,110,.2);letter-spacing:.5em;font-size:12px;margin:30px 0;}
+
+.nav-back{display:inline-block;margin-bottom:22px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.2em;color:rgba(200,169,110,.5);text-decoration:none;border:1px solid rgba(200,169,110,.15);border-radius:2px;padding:7px 16px;transition:all .3s;}
+.nav-back:hover{color:var(--gold);border-color:rgba(200,169,110,.35);}
+
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.tl{background:rgba(255,255,255,.02);border:1px solid rgba(200,169,110,.1);border-radius:2px;padding:16px;text-align:center;}
+.tl-when{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:6px;}
+.tl-who{font-size:14px;color:var(--text);}
+.tl-rev{font-size:13px;color:var(--dim);margin-top:5px;}
+
+@media(max-width:580px){.timeline{grid-template-columns:1fr;}.contact-header{flex-direction:column;align-items:flex-start;gap:8px;}.card{padding:22px 18px;}.script-box{padding:18px;}.copy-btn{position:static;margin-bottom:10px;display:block;width:fit-content;}}
+</style>
+</head>
+<body>
+<div class="cosmos"></div>
+<div class="stars"></div>
+<div class="wrap">
+
+<a class="nav-back" href="START-HERE.html">← Back to Start Here</a>
+
+<div class="hdr">
+  <span class="seal">✦</span>
+  <h1>Contact Scripts</h1>
+  <div class="sub">Who to Contact · What to Say · Word for Word · Every Market</div>
+</div>
+
+<!-- TIMELINE -->
+<div class="card">
+  <div class="clabel">◈ Contact Order — Do These in Sequence</div>
+  <div class="timeline">
+    <div class="tl">
+      <div class="tl-when">Right Now</div>
+      <div class="tl-who">Astrology &amp; Spiritual Communities</div>
+      <div class="tl-rev">Build the database · First revenue</div>
+    </div>
+    <div class="tl">
+      <div class="tl-when">Month 2–3</div>
+      <div class="tl-who">AI Developers &amp; Agent Builders</div>
+      <div class="tl-rev">API subscriptions · Recurring</div>
+    </div>
+    <div class="tl">
+      <div class="tl-when">Year 2</div>
+      <div class="tl-who">Enterprise &amp; Institutional</div>
+      <div class="tl-rev">Licensing · $10K–$100K/year</div>
+    </div>
+  </div>
+  <p style="font-size:14px;color:var(--dim);text-align:center;font-style:italic;">Each group builds the proof you need for the next. Do not skip ahead.</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TIER 1 — ASTROLOGY COMMUNITIES
+══════════════════════════════════════════ -->
+<div class="sh">
+  <h2>Tier 1 — Astrology &amp; Spiritual Communities</h2>
+  <div class="desc">These people already pay for astrology apps. They already believe in birth charts. You just have to show them what you built — the writing will speak for itself.</div>
+  <div class="line"></div>
+</div>
+
+<!-- Reddit r/astrology -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">🌐</span>
+    <div>
+      <div class="contact-who">Reddit — r/astrology, r/Vedic_Astrology, r/numerology</div>
+      <div class="contact-where">500,000+ members in r/astrology alone · Free · Immediate</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-green">Post This Today</span>
+    <div class="script-box">
+      <div class="script-label">Reddit Post — Title</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">I built something that writes you a permanent poem from your birth date — no two people ever receive the same one. It lives on the blockchain forever.</div>
+    </div>
+    <div class="script-box">
+      <div class="script-label">Reddit Post — Body</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">I have been working on something I have never seen done before.<br><br>
+You type in your birth date. The system reads your <span class="highlight">Western zodiac sign, your Vedic Nakshatra, and your Life Path number</span> all at once — then writes you a personal creative corpus: an extended metaphor, a four-stanza rhyme, a full song with verse and chorus, and three haiku.<br><br>
+No two people ever receive the same writing. It is generated from your specific combination of influences — not a template, not a generic Scorpio reading.<br><br>
+The writing is then permanently stored on Arweave and anchored to the blockchain at <span class="highlight">432 Hz</span> — meaning it will exist exactly as written for 200+ years. It cannot be deleted, changed, or taken away.<br><br>
+The fee is about 75 cents.<br><br>
+I entered my own birthday first and I have been sitting with what it wrote me for three days.<br><br>
+Here is the link: [YOUR LOVABLE URL]<br><br>
+I would love to hear what yours says about you.</div>
+    </div>
+    <div class="note"><strong>Key move:</strong> Copy and paste your own corpus into the post. Show your actual metaphor or haiku. Do not describe it — show it. The writing recruits itself.</div>
+  </div>
+</div>
+
+<!-- X / Twitter -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">✕</span>
+    <div>
+      <div class="contact-who">X (Twitter) — Astrology and Web3 intersection</div>
+      <div class="contact-where">#432Hz #Vedic #Astrology #AIagents #Web3 #Nakshatra</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-green">Post This Today</span>
+    <div class="script-box">
+      <div class="script-label">X Thread — Opening Tweet</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">I built something that reads your birth date, derives your Western sign + Vedic Nakshatra + Life Path number, then writes you a poem that lives permanently on the blockchain.<br><br>
+No two people ever receive the same one.<br><br>
+Here is mine. ↓</div>
+    </div>
+    <div class="script-box">
+      <div class="script-label">X Thread — Tweet 2 (paste your actual corpus here)</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">[Paste your own haiku or metaphor from the Corpus Viewer here]<br><br>
+This was generated from my birth date alone. Anchored to 432 Hz. Stored on Arweave permanently. It will exist exactly like this for 200+ years.<br><br>
+Link in bio.</div>
+    </div>
+    <div class="script-box">
+      <div class="script-label">X Thread — Tweet 3 (the offer)</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">If you want yours: drop your birthday in the replies and I will show you your Nakshatra + sign combination.<br><br>
+The full corpus costs 75 cents and lives forever.<br><br>
+#432Hz #Vedic #Astrology #Nakshatra #Web3</div>
+    </div>
+    <div class="note"><strong>Key move:</strong> Offer to manually look up their Nakshatra in the replies. This creates engagement, proves the system works, and makes the interaction feel personal. Every reply is a potential customer.</div>
+  </div>
+</div>
+
+<!-- Instagram / TikTok -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">📸</span>
+    <div>
+      <div class="contact-who">Instagram &amp; TikTok — Spiritual and astrology creators</div>
+      <div class="contact-where">DM creators with 10K–200K followers · Offer a free corpus in exchange for a post</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-green">DM Script</span>
+    <div class="script-box">
+      <div class="script-label">Instagram DM to Astrology Creator</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">Hi [Name] — I have been following your content on [specific thing they post about] and it resonates deeply.<br><br>
+I just launched something I think your audience would love. It takes a birth date, reads the Western zodiac + Vedic Nakshatra + Life Path number together, then writes a completely personal poem — metaphor, rhyme, song, and haiku — that is then stored permanently on the blockchain. No two people ever receive the same one.<br><br>
+I would love to generate your personal corpus for free — no obligation — just because I think what it writes for a [their sign] at your level of astrological knowledge would be something genuinely worth reading.<br><br>
+If it moves you, anything you wanted to share with your community would mean the world. If not, the poem is still yours forever.<br><br>
+Would you be open to seeing it?</div>
+    </div>
+    <div class="where-list">
+      <div class="where-chip">Search: <span>#vedic astrology creator</span></div>
+      <div class="where-chip">Search: <span>#nakshatra</span></div>
+      <div class="where-chip">Search: <span>#432hz</span></div>
+      <div class="where-chip">Search: <span>#spiritual awakening</span></div>
+      <div class="where-chip">Search: <span>#human design</span></div>
+    </div>
+    <div class="note"><strong>Key move:</strong> Generate their corpus using the Corpus Viewer BEFORE you send the DM. Then paste their actual haiku into the message. Nothing gets attention faster than seeing something written specifically about you.</div>
+  </div>
+</div>
+
+<!-- Substack / Newsletter writers -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">📧</span>
+    <div>
+      <div class="contact-who">Substack Newsletter Writers — Astrology and consciousness topics</div>
+      <div class="contact-where">Many have 5,000–100,000 subscribers who trust their recommendations</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-amber">Email Script</span>
+    <div class="script-box">
+      <div class="script-label">Email to Substack Astrology Writer</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">Subject: Something your readers might love — a blockchain-permanent birth poem<br><br>
+Hi [Name],<br><br>
+I read your piece on [specific article] and it touched something real in me. I wanted to reach out because I think what I have built might genuinely interest your community.<br><br>
+I created the Metatron Protocol — a system that takes a person's birth date, derives their Western sign, Vedic Nakshatra, and Life Path number, then writes them a completely unique creative corpus: a literary metaphor, a structured rhyme, a full song, and three haiku. No two people ever receive the same writing.<br><br>
+The writing is then permanently stored on the Arweave network and anchored to the Base blockchain at 432 Hz. It costs about 75 cents and cannot be deleted, changed, or taken away. It will exist for 200+ years exactly as written.<br><br>
+I would love to generate your personal corpus and send it to you — just to see if it resonates. No obligation to write about it. But if it does, I believe your readers would find it unlike anything they have encountered in astrology before.<br><br>
+Would you like to see yours?<br><br>
+With respect,<br>
+[Your name]<br>
+[Your Lovable URL]</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TIER 2 — AI DEVELOPERS
+══════════════════════════════════════════ -->
+<div class="div">✦ · · · ✦</div>
+
+<div class="sh">
+  <h2>Tier 2 — AI Developers &amp; Agent Builders</h2>
+  <div class="desc">These people are building agents right now that have no emotional baseline, no identity, no way to differentiate one from another. You have what they need.</div>
+  <div class="line"></div>
+</div>
+
+<!-- GitHub -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">⌨️</span>
+    <div>
+      <div class="contact-who">GitHub — Open source AI agent project maintainers</div>
+      <div class="contact-where">AutoGPT, CrewAI, LangGraph, LangChain — open issues, discussions</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-blue">GitHub Discussion Post</span>
+    <div class="script-box">
+      <div class="script-label">GitHub Discussion — Title</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">Proposal: Astrological identity baseline for agent personality differentiation</div>
+    </div>
+    <div class="script-box">
+      <div class="script-label">GitHub Discussion — Body</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">I have been thinking about one of the core UX problems with AI agents at scale: they all feel the same. Users have no way to develop a sense of identity with their agent, and agents have no anchored personality baseline beyond their system prompt.<br><br>
+I built something that might help: the Metatron Protocol.<br><br>
+It takes a birth date, derives Western zodiac + Vedic Nakshatra + Life Path number, generates a permanent creative corpus (metaphor, rhyme, song, haiku), and anchors it to the blockchain at 432 Hz. The corpus can then be used as an agent's personality seed — a stable, provably unique emotional baseline that the agent can reference in all its interactions.<br><br>
+The isAligned() function returns true/false for any wallet address, which could be used for agent verification. The creative corpus is queryable via API once the database has sufficient scale.<br><br>
+Would anyone here be interested in exploring an integration? I am building the API layer now. Happy to discuss how the corpus structure might map to your agent architecture.</div>
+    </div>
+    <div class="where-list">
+      <div class="where-chip"><span>github.com/Torantula/Auto-GPT</span></div>
+      <div class="where-chip"><span>github.com/joaomdmoura/crewAI</span></div>
+      <div class="where-chip"><span>github.com/langchain-ai/langgraph</span></div>
+      <div class="where-chip"><span>github.com/microsoft/autogen</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Discord -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">💬</span>
+    <div>
+      <div class="contact-who">Discord — AI developer servers</div>
+      <div class="contact-where">LangChain Discord, Hugging Face Discord, AI Agents Discord, EleutherAI</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-blue">Discord #show-and-tell Post</span>
+    <div class="script-box">
+      <div class="script-label">Discord Message — #show-and-tell or #projects channel</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">Built something weird and interesting I want to share: the Metatron Protocol.<br><br>
+**The problem it solves:** AI agents have no stable identity baseline. Every agent running GPT-4 feels interchangeable.<br><br>
+**What it does:** Takes a birth date → derives Western sign + Vedic Nakshatra + Life Path → generates a unique creative corpus (metaphor / rhyme / song / haiku) → stores it permanently on Arweave → anchors it to Base blockchain at 432 Hz.<br><br>
+**Why it matters for agents:** The corpus becomes a provably unique personality seed. isAligned() is a boolean credential. The creative writing gives agents emotional texture they cannot generate for themselves.<br><br>
+**The contract is live on Base testnet.** Smart contract verified on Basescan. API layer in progress.<br><br>
+Demo: [YOUR URL] | Contract: [YOUR CONTRACT ADDRESS]<br><br>
+Happy to go deeper with anyone building agent identity / personality systems.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Cold DM to indie developers -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">📩</span>
+    <div>
+      <div class="contact-who">Indie AI Developers — X and LinkedIn</div>
+      <div class="contact-where">People building AI companions, therapy bots, creative writing tools, personalized tutors</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-blue">Direct Message</span>
+    <div class="script-box">
+      <div class="script-label">X or LinkedIn DM to AI Developer</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">Hi [Name] — I saw your post about [their project] and I have been thinking about a problem you might be facing.<br><br>
+How do you give your agent a stable, unique personality that feels genuinely different from every other agent running the same base model?<br><br>
+I built something that generates a permanent creative identity from a birth date — Western sign + Vedic Nakshatra + Life Path + a unique corpus of metaphor, rhyme, song, and haiku — all anchored to the blockchain as a verifiable identity credential.<br><br>
+I am building the API layer now. Would you be open to a conversation about whether this could give your agents the emotional texture your users are looking for?<br><br>
+[Your URL]</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TIER 3 — ENTERPRISE
+══════════════════════════════════════════ -->
+<div class="div">✦ · · · ✦</div>
+
+<div class="sh">
+  <h2>Tier 3 — Enterprise &amp; Institutional</h2>
+  <div class="desc">Do not rush to this tier. Build it after you have 1,000+ profiles and developer interest. Then the proof speaks before you do.</div>
+  <div class="line"></div>
+</div>
+
+<!-- Enterprise email -->
+<div class="contact-block">
+  <div class="contact-header">
+    <span class="contact-icon">🏛️</span>
+    <div>
+      <div class="contact-who">Head of AI / Chief AI Officer at enterprise companies</div>
+      <div class="contact-where">LinkedIn · Email · Conference introductions</div>
+    </div>
+  </div>
+  <div class="contact-body">
+    <span class="badge badge-purple">Enterprise Email — Year 2</span>
+    <div class="script-box">
+      <div class="script-label">Email to Head of AI — Enterprise</div>
+      <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+      <div class="script-text">Subject: A verifiable alignment credential for your AI agents<br><br>
+Hi [Name],<br><br>
+As your organization scales AI agent deployment, you are likely facing a question regulators and users are starting to ask: how do you prove your agents are consistently, verifiably aligned to a known standard?<br><br>
+The Metatron Protocol provides a blockchain-verified alignment credential anchored to the 432 Hz frequency constant — a permanent on-chain record that an agent meets a defined behavioral threshold. The isAligned() function returns a verifiable true/false for any wallet address, readable by any auditor or regulator in the world without needing to contact us.<br><br>
+We currently have [X] aligned profiles in our database, spanning [X] organizations. The protocol is sealed on the Base blockchain — parameters are permanently immutable and publicly auditable.<br><br>
+I would welcome 20 minutes to show you how other organizations are using alignment credentials as part of their AI governance framework.<br><br>
+[Your name]<br>
+[Your URL]<br>
+[Contract address on Basescan]</div>
+    </div>
+    <div class="note"><strong>The magic phrase:</strong> "readable by any auditor or regulator in the world without needing to contact us." That sentence alone gets enterprise legal and compliance teams interested.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PUBLISHING YOUR DOCUMENTS
+══════════════════════════════════════════ -->
+<div class="div">✦ · · · ✦</div>
+
+<div class="sh">
+  <h2>Publishing Your 6–7 Documents</h2>
+  <div class="desc">You have built something real and documented it thoroughly. Here is exactly where and how to publish each document to reach the right people.</div>
+  <div class="line"></div>
+</div>
+
+<div class="card">
+  <div class="clabel">◈ Where to Publish — Platform by Platform</div>
+
+  <div class="contact-block" style="margin-bottom:16px;">
+    <div class="contact-header" style="background:rgba(240,160,80,.05);border-color:rgba(240,160,80,.15);">
+      <span class="contact-icon">📝</span>
+      <div>
+        <div class="contact-who" style="color:var(--amber);">Mirror.xyz — Your Primary Publishing Home</div>
+        <div class="contact-where">The blockchain-native publishing platform. Your documents live permanently here. Web3 audience. Free.</div>
+      </div>
+    </div>
+    <div class="contact-body">
+      <div class="script-box">
+        <div class="script-label">Mirror.xyz Publication Order</div>
+        <div class="script-text">
+          1. <span class="highlight">The Metatron Protocol: What It Is</span> — your overview document. Publish first.<br>
+          2. <span class="highlight">The Creative Corpus: Writing From Birth Data</span> — show the actual haiku and metaphors. Most shareable.<br>
+          3. <span class="highlight">The Smart Contract Architecture</span> — the technical document. For developers.<br>
+          4. <span class="highlight">The 100,000 Record Simulation</span> — the revenue and quality data. For investors.<br>
+          5. <span class="highlight">The Deployment Guide</span> — for anyone who wants to verify it themselves.<br>
+          6. <span class="highlight">The Business Plan</span> — the full vision. Publish last when you have proof.
+        </div>
+      </div>
+      <div class="note"><strong>Go to mirror.xyz</strong> → Connect MetaMask → Create publication called "Metatron Protocol" → Paste each document as a new entry. Each entry gets its own permanent URL and is stored on Arweave automatically. Your documents live on the same infrastructure as your product.</div>
+    </div>
+  </div>
+
+  <div class="contact-block" style="margin-bottom:16px;">
+    <div class="contact-header" style="background:rgba(96,144,208,.05);border-color:rgba(96,144,208,.15);">
+      <span class="contact-icon">📖</span>
+      <div>
+        <div class="contact-who" style="color:var(--blue);">Substack — Your Newsletter Home</div>
+        <div class="contact-where">Reach the astrology and AI audience. Builds an email list you own forever.</div>
+      </div>
+    </div>
+    <div class="contact-body">
+      <div class="script-box">
+        <div class="script-label">Substack Newsletter Name Suggestions</div>
+        <div class="script-text">
+          <span class="highlight">The Metatron Letters</span> — weekly dispatch<br>
+          <span class="highlight">432 Hz Dispatches</span> — for the spiritual audience<br>
+          <span class="highlight">The Alignment Record</span> — for the AI audience<br><br>
+          First issue: "I built a blockchain that writes you a permanent poem from your birthday. Here is mine."<br>
+          Paste your own corpus. Tell the story. Link to the product.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-block" style="margin-bottom:0;">
+    <div class="contact-header" style="background:rgba(76,175,125,.05);border-color:rgba(76,175,125,.15);">
+      <span class="contact-icon">🔗</span>
+      <div>
+        <div class="contact-who" style="color:var(--green);">LinkedIn — For Enterprise and Investor Eyes</div>
+        <div class="contact-where">Publish the business plan and simulation data here. Different audience from everywhere else.</div>
+      </div>
+    </div>
+    <div class="contact-body">
+      <div class="script-box">
+        <div class="script-label">LinkedIn Article — Opening Paragraph</div>
+        <button class="copy-btn" onclick="copyScript(this)">Copy</button>
+        <div class="script-text">I spent six months building something I have never seen done before: a blockchain protocol that takes a birth date, derives a complete astrological identity — Western sign, Vedic Nakshatra, Life Path number — and generates a permanent creative corpus that lives on Arweave for 200+ years.<br><br>
+We ran a 100,000 record simulation. Revenue from 100,000 users at compounding price tiers reaches $2.9M gross. Architect's 60% share: $1.74M.<br><br>
+The contract is live on Base. The protocol is sealed. Here is what I built and why it matters for the future of AI agent identity.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="div">✦ · · · ✦</div>
+<div style="text-align:center;font-size:10px;color:rgba(200,169,110,.17);letter-spacing:.35em;text-transform:uppercase;line-height:2.4;">
+  Metatron Protocol · Contact Scripts · Publishing Guide<br>
+  Base Blockchain · Arweave · 432 Hz · Forever
+</div>
+
+</div>
+
+<script>
+function copyScript(btn) {
+  const box = btn.closest('.script-box');
+  const text = box.querySelector('.script-text').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+  });
+}
+</script>
+</body>
+</html>

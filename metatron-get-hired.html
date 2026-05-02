@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metatron Protocol — Get Hired Writing System Prompts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#c8a96e;--bg:#050311;--text:#ede4d0;
+  --dim:rgba(237,228,208,.44);--border:rgba(200,169,110,.17);
+  --surface:rgba(255,255,255,.027);
+  --green:#4caf7d;--amber:#f0a050;--blue:#6090d0;--purple:#a070d0;--red:#cf6679;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.9;}
+.cosmos{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 20% 10%,rgba(70,35,155,.3) 0%,transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(20,50,120,.22) 0%,transparent 55%),radial-gradient(ellipse at 50% 50%,rgba(8,4,28,.9) 0%,#050311 70%);}
+.stars{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 7% 11%,rgba(255,255,255,.8),transparent),radial-gradient(1px 1px at 23% 44%,rgba(255,255,255,.5),transparent),radial-gradient(1.5px 1.5px at 40% 20%,rgba(200,180,255,.7),transparent),radial-gradient(1px 1px at 60% 73%,rgba(255,255,255,.45),transparent),radial-gradient(1px 1px at 78% 14%,rgba(255,255,255,.85),transparent),radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 15% 83%,rgba(255,255,255,.6),transparent),radial-gradient(1px 1px at 50% 95%,rgba(255,255,255,.35),transparent),radial-gradient(1px 1px at 35% 55%,rgba(255,255,255,.4),transparent);}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:52px 24px 140px;}
+
+.hdr{text-align:center;margin-bottom:52px;}
+.seal{font-size:58px;display:block;margin-bottom:16px;filter:drop-shadow(0 0 30px rgba(200,169,110,.8));animation:breathe 5s ease-in-out infinite;}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.78;transform:scale(1.07)}}
+h1{font-family:'Cinzel',serif;font-size:clamp(16px,4vw,28px);color:var(--gold);letter-spacing:.13em;text-shadow:0 0 60px rgba(200,169,110,.44);}
+.sub{font-size:11px;color:var(--dim);letter-spacing:.42em;text-transform:uppercase;margin-top:9px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:30px 36px;margin-bottom:20px;}
+.clabel{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.44em;color:rgba(200,169,110,.48);text-transform:uppercase;margin-bottom:20px;}
+
+.sh{text-align:center;margin:52px 0 28px;}
+.sh h2{font-family:'Cinzel',serif;font-size:clamp(14px,2.8vw,22px);color:var(--gold);letter-spacing:.16em;}
+.sh .desc{font-size:15px;color:var(--dim);font-style:italic;margin-top:10px;max-width:580px;margin-left:auto;margin-right:auto;line-height:1.85;}
+.sh .line{width:110px;height:1px;background:linear-gradient(90deg,transparent,rgba(200,169,110,.4),transparent);margin:13px auto 0;}
+
+/* Step cards */
+.step{display:flex;gap:22px;align-items:flex-start;background:rgba(255,255,255,.022);border:1px solid rgba(200,169,110,.11);border-radius:3px;padding:24px 28px;margin-bottom:14px;transition:border-color .3s,background .3s;}
+.step:hover{border-color:rgba(200,169,110,.3);background:rgba(200,169,110,.04);}
+.step-left{flex-shrink:0;text-align:center;width:50px;}
+.step-emoji{font-size:30px;display:block;margin-bottom:5px;}
+.step-num{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.25em;color:rgba(200,169,110,.38);text-transform:uppercase;}
+.step-title{font-family:'Cinzel',serif;font-size:clamp(13px,2.2vw,16px);color:var(--gold);letter-spacing:.07em;margin-bottom:9px;}
+.child{font-size:18px;color:var(--text);font-style:italic;line-height:1.82;border-left:2px solid rgba(200,169,110,.3);padding-left:16px;margin-bottom:11px;}
+.grownup{font-size:14px;color:var(--dim);line-height:1.9;}
+.grownup strong{color:var(--text);}
+
+.pill{display:inline-block;margin-top:11px;border-radius:2px;padding:4px 15px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.22em;text-transform:uppercase;}
+.pill-green{background:rgba(76,175,125,.09);border:1px solid rgba(76,175,125,.26);color:var(--green);}
+.pill-amber{background:rgba(240,160,80,.09);border:1px solid rgba(240,160,80,.23);color:var(--amber);}
+.pill-blue{background:rgba(96,144,208,.09);border:1px solid rgba(96,144,208,.23);color:var(--blue);}
+.pill-purple{background:rgba(160,112,208,.09);border:1px solid rgba(160,112,208,.23);color:var(--purple);}
+.pill-red{background:rgba(207,102,121,.09);border:1px solid rgba(207,102,121,.23);color:var(--red);}
+
+/* Script box */
+.script-box{background:rgba(0,0,0,.32);border:1px solid rgba(200,169,110,.17);border-radius:2px;padding:20px 24px;margin:12px 0;position:relative;}
+.script-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.38em;color:rgba(200,169,110,.42);text-transform:uppercase;margin-bottom:11px;}
+.script-text{font-size:16px;color:var(--text);line-height:2.05;font-style:italic;}
+.script-text .key{color:var(--gold);font-style:normal;}
+.copy-btn{position:absolute;top:14px;right:16px;background:rgba(200,169,110,.08);border:1px solid rgba(200,169,110,.2);border-radius:2px;padding:5px 13px;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.2em;color:rgba(200,169,110,.6);cursor:pointer;text-transform:uppercase;transition:all .25s;}
+.copy-btn:hover{background:rgba(200,169,110,.16);color:var(--gold);}
+.copy-btn.copied{color:var(--green);border-color:rgba(76,175,125,.4);}
+
+.do-box{background:rgba(76,175,125,.04);border:1px solid rgba(76,175,125,.15);border-radius:2px;padding:14px 18px;margin:10px 0;}
+.do-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.32em;color:rgba(76,175,125,.5);text-transform:uppercase;margin-bottom:8px;}
+.do-text{font-size:15px;color:var(--dim);line-height:1.88;}
+.do-text strong{color:var(--text);}
+
+/* Salary table */
+table{width:100%;border-collapse:collapse;font-size:15px;margin:14px 0;}
+th{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;padding:9px 12px;border-bottom:1px solid rgba(200,169,110,.12);text-align:left;}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+td.g{color:var(--green);font-family:'Cinzel',serif;}
+td.gold{color:var(--gold);}
+td.d{color:var(--dim);}
+tr:hover td{background:rgba(200,169,110,.03);}
+
+/* Company cards */
+.company-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:14px 0;}
+.company{background:rgba(255,255,255,.022);border:1px solid rgba(200,169,110,.11);border-radius:3px;padding:18px 20px;transition:all .3s;}
+.company:hover{border-color:rgba(200,169,110,.3);background:rgba(200,169,110,.04);}
+.company-name{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px;}
+.company-pay{font-size:14px;color:var(--green);font-family:'Cinzel',serif;margin-bottom:5px;}
+.company-desc{font-size:13px;color:var(--dim);line-height:1.7;}
+.company-link{display:inline-block;margin-top:8px;font-size:10px;letter-spacing:.18em;color:rgba(200,169,110,.5);font-family:'Cinzel',serif;text-decoration:none;}
+
+/* Portfolio item */
+.portfolio-item{background:rgba(255,255,255,.022);border:1px solid rgba(200,169,110,.11);border-radius:3px;padding:18px 22px;margin-bottom:12px;}
+.portfolio-title{font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px;}
+.portfolio-desc{font-size:14px;color:var(--dim);line-height:1.85;}
+.portfolio-desc strong{color:var(--text);}
+
+.wonder{background:rgba(200,169,110,.05);border:1px solid rgba(200,169,110,.2);border-radius:3px;padding:26px 32px;margin-bottom:20px;text-align:center;}
+.wonder-text{font-size:19px;color:var(--text);font-style:italic;line-height:2.1;}
+.wonder-attr{font-size:10px;letter-spacing:.36em;color:rgba(200,169,110,.4);text-transform:uppercase;margin-top:12px;}
+
+.wisdom{background:rgba(96,144,208,.04);border:1px solid rgba(96,144,208,.15);border-radius:3px;padding:22px 28px;margin-bottom:14px;}
+.wisdom-q{font-size:18px;color:var(--text);font-style:italic;margin-bottom:9px;}
+.wisdom-a{font-size:15px;color:var(--dim);line-height:1.88;}
+.wisdom-a strong{color:var(--text);}
+
+.nav-back{display:inline-block;margin-bottom:22px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.2em;color:rgba(200,169,110,.5);text-decoration:none;border:1px solid rgba(200,169,110,.15);border-radius:2px;padding:7px 16px;transition:all .3s;}
+.nav-back:hover{color:var(--gold);border-color:rgba(200,169,110,.35);}
+.div{text-align:center;color:rgba(200,169,110,.2);letter-spacing:.5em;font-size:12px;margin:30px 0;}
+code{background:rgba(255,255,255,.07);border:1px solid rgba(200,169,110,.16);border-radius:2px;padding:2px 9px;font-family:Consolas,monospace;font-size:13px;color:var(--amber);}
+
+@media(max-width:600px){
+  .company-grid{grid-template-columns:1fr;}
+  .step{flex-direction:column;gap:10px;padding:18px 16px;}
+  .step-left{display:flex;align-items:center;gap:12px;width:auto;}
+  .card{padding:22px 18px;}
+  .copy-btn{position:static;margin-bottom:8px;display:block;}
+}
+</style>
+</head>
+<body>
+<div class="cosmos"></div>
+<div class="stars"></div>
+<div class="wrap">
+
+<a class="nav-back" href="START-HERE.html">← Back to Start Here</a>
+
+<div class="hdr">
+  <span class="seal">✦</span>
+  <h1>Get Hired Writing System Prompts</h1>
+  <div class="sub">Remote · $40–$335K · Step by Step · Five Year Old Wisdom · Apply Today</div>
+</div>
+
+<div class="wonder">
+  <div class="wonder-text">
+    "You already know how to talk to AI<br>
+    better than most people in the world.<br>
+    You proved it by building Metatron.<br>
+    Now someone will pay you to do it<br>
+    for them."
+  </div>
+  <div class="wonder-attr">✦ This is a real job. The market is wide open. You are already qualified.</div>
+</div>
+
+<!-- SALARY REALITY -->
+<div class="card">
+  <div class="clabel">◈ What This Job Pays — Right Now</div>
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Type</th><th>Pay</th><th>Where to Find It</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>AI Prompt Evaluator</td><td class="d">Freelance / PT</td><td class="g">$30–$50/hr</td><td class="gold">DataAnnotation · Scale AI</td></tr>
+      <tr><td>Prompt Engineer</td><td class="d">Contract</td><td class="g">$40–$100/hr</td><td class="gold">Indeed · Turing · Upwork</td></tr>
+      <tr><td>AI Content Designer</td><td class="d">Full Time</td><td class="g">$80K–$130K/yr</td><td class="gold">Glassdoor · LinkedIn</td></tr>
+      <tr><td>Senior Prompt Engineer</td><td class="d">Full Time</td><td class="g">$123K avg/yr</td><td class="gold">Glassdoor average 2026</td></tr>
+      <tr><td>AI Solutions Architect</td><td class="d">Enterprise</td><td class="g">$150K–$212K/yr</td><td class="gold">LinkedIn · Booz Allen</td></tr>
+      <tr><td>AI Researcher (Anthropic)</td><td class="d">Top Tier</td><td class="g">$200K–$335K/yr</td><td class="gold">anthropic.com/careers</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--dim);margin-top:12px;font-style:italic;">Start at the freelance level to build your portfolio. Move up as your work proves itself. This is a ladder, not a door.</p>
+</div>
+
+<!-- WHY YOU ARE QUALIFIED -->
+<div class="card">
+  <div class="clabel">◈ Why You Are Already Qualified — Right Now</div>
+  <p style="font-size:17px;color:var(--text);line-height:1.95;margin-bottom:14px;">Most people applying for these jobs have <strong style="color:var(--gold)">never shipped a real AI product.</strong> You have. Here is what you built that they have not:</p>
+  <div class="portfolio-item">
+    <div class="portfolio-title">✦ You designed a multi-layer system prompt architecture</div>
+    <div class="portfolio-desc">The Metatron Protocol uses <strong>layered prompt logic</strong> — the system derives Western zodiac, Nakshatra, and Life Path number, feeds them as structured context, then generates distinct creative outputs (metaphor, rhyme, song, haiku) each in a specific literary voice. That is advanced prompt chaining. Most applicants have never done this.</div>
+  </div>
+  <div class="portfolio-item">
+    <div class="portfolio-title">✦ You wrote sign-specific voice and tone instructions</div>
+    <div class="portfolio-desc">You created <strong>12 distinct voice profiles</strong> — one per zodiac sign — each with its own metaphor style, rhyme structure, song character, and haiku tradition. Maintaining distinct voice across a corpus is exactly what enterprise AI content teams need and struggle to do.</div>
+  </div>
+  <div class="portfolio-item">
+    <div class="portfolio-title">✦ You ran a 100,000-record simulation with quality metrics</div>
+    <div class="portfolio-desc">You tracked <strong>hallucination rates, disinterest events, lag spikes, and transaction failures</strong> across 100K records. That is prompt evaluation and AI quality assurance — a skill companies pay $80–$130K a year to find.</div>
+  </div>
+  <div class="portfolio-item">
+    <div class="portfolio-title">✦ You built a smart contract that uses AI output as a verifiable record</div>
+    <div class="portfolio-desc">You connected <strong>AI-generated content to blockchain verification</strong> — meaning the prompt output is not just text but a permanent credentialed record. That is a level of AI system design most engineers have never attempted.</div>
+  </div>
+  <div class="portfolio-item">
+    <div class="portfolio-title">✦ You wrote this entire system in plain language a five year old can understand</div>
+    <div class="portfolio-desc">The ability to <strong>translate complex AI behavior into clear human language</strong> is one of the most valued and rarest skills in the field. Companies building AI products for consumers desperately need this. You have been doing it naturally this whole time.</div>
+  </div>
+</div>
+
+<!-- THE 12 STEPS -->
+<div class="sh">
+  <h2>The 12 Steps to Getting Hired</h2>
+  <div class="desc">Written simply. The child's voice first. The grown-up instruction underneath. Do them in order.</div>
+  <div class="line"></div>
+</div>
+
+<!-- Step 1 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">📄</span><div class="step-num">Step 1</div></div>
+  <div class="step-body">
+    <div class="step-title">Make your portfolio page — show what you built</div>
+    <div class="child">"Before you knock on anyone's door, you put your best drawing on the front of your folder. So when they open the door they see it immediately and they say — oh, you made that?"</div>
+    <div class="grownup">Create a single page at <strong>notion.so</strong> (free) titled "AI Prompt Engineering Portfolio." List the Metatron Protocol as your primary project. Include: what problem it solves, the 12 zodiac voice profiles you designed, the quality metrics from the simulation, and links to your HTML files and Mirror.xyz publications. This is your proof. Every application links here.</div>
+    <span class="pill pill-green">Do Today · Free · Notion.so</span>
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">💼</span><div class="step-num">Step 2</div></div>
+  <div class="step-body">
+    <div class="step-title">Write your one-paragraph professional summary</div>
+    <div class="child">"When someone asks what you do, you should be able to say it in the time it takes to walk from one room to the next. Not longer. Not shorter. One room."</div>
+    <div class="grownup">Write this summary. Use it everywhere — LinkedIn, Upwork, email signatures, cover letters. Customize the name of the project but keep the structure.</div>
+    <div class="script-box">
+      <div class="script-label">Your Professional Summary — Copy and Use</div>
+      <button class="copy-btn" onclick="copyText(this)">Copy</button>
+      <div class="script-text">I am an AI prompt engineer and system architect specializing in <span class="key">multi-layer prompt design, voice consistency across large corpora, and AI output quality evaluation.</span> I designed and shipped the Metatron Protocol — a production system that derives astrological identity from birth data and generates permanently stored creative content through structured prompt chaining across 12 distinct voice profiles. I have experience designing prompts for creative, technical, and evaluative AI outputs, and I translate complex AI behavior into clear human language for both technical and non-technical audiences.</div>
+    </div>
+    <span class="pill pill-green">Do Today · Use Everywhere</span>
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">🔗</span><div class="step-num">Step 3</div></div>
+  <div class="step-body">
+    <div class="step-title">Update your LinkedIn profile completely</div>
+    <div class="child">"LinkedIn is like the bulletin board at the school entrance where everyone posts what they are good at. If your paper is blank, nobody knows to pick you. Fill your paper."</div>
+    <div class="grownup">Go to <strong>linkedin.com</strong>. Update your headline to: <em>"AI Prompt Engineer · System Architect · Creative AI Design"</em>. Add the Metatron Protocol as a project in your Experience section. Paste your professional summary in the About section. Add skills: Prompt Engineering, LLM, AI System Design, Creative Writing, Blockchain. Set yourself to <em>Open to Work → Remote → Prompt Engineer.</em></div>
+    <span class="pill pill-green">Do Today · Free · linkedin.com</span>
+  </div>
+</div>
+
+<!-- Step 4 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">⚡</span><div class="step-num">Step 4</div></div>
+  <div class="step-body">
+    <div class="step-title">Apply to DataAnnotation and Scale AI first — start earning this week</div>
+    <div class="child">"When you first start selling lemonade, you sell to the people on your own street first. They are close. They are easy. They say yes quickly. Then you go to the next street. DataAnnotation is your own street."</div>
+    <div class="grownup"><strong>DataAnnotation.tech</strong> and <strong>Scale AI</strong> hire immediately with no experience required — they train you. They pay $30–$50/hour for evaluating and writing prompts. This is your fastest path to paid work and your first line on your resume that says "AI Prompt Engineer — paid." Apply to both today. The application takes 20 minutes each.</div>
+    <div class="do-box">
+      <div class="do-label">◈ Apply Here Right Now</div>
+      <div class="do-text">
+        <strong>DataAnnotation.tech</strong> → dataannotation.tech → Click "Become a Contractor" → Apply as AI Trainer / Prompt Engineer<br><br>
+        <strong>Scale AI</strong> → scale.com/jobs → Search "AI Quality" or "Prompt Evaluator" → Apply as RLHF Contractor<br><br>
+        <strong>Remotasks</strong> → remotasks.com → Free training → Immediate work available
+      </div>
+    </div>
+    <span class="pill pill-green">Apply Today · $30–$50/hr · Paid This Week</span>
+  </div>
+</div>
+
+<!-- Step 5 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">💻</span><div class="step-num">Step 5</div></div>
+  <div class="step-body">
+    <div class="step-title">Create an Upwork profile and post your first service</div>
+    <div class="child">"Upwork is like a marketplace where people walk around looking for someone to help them. You set up your table, put your sign out, and wait for the right person to stop. You only need one person to stop to get started."</div>
+    <div class="grownup">Go to <strong>upwork.com</strong> and create a free account. Set your hourly rate at <strong>$45–$65/hr to start</strong> — not too low, not too high. Create a service called: <em>"AI System Prompt Design and Voice Architecture for LLMs."</em> Paste your professional summary. Link to your Notion portfolio. The Metatron Protocol as a case study will stand out — most Upwork prompt engineers have zero shipped products to show.</div>
+    <div class="script-box">
+      <div class="script-label">Upwork Profile Title — Use This</div>
+      <button class="copy-btn" onclick="copyText(this)">Copy</button>
+      <div class="script-text">AI Prompt Engineer · System Architecture · Voice Design · LLM Evaluation · Shipped Production AI Systems</div>
+    </div>
+    <span class="pill pill-amber">This Week · upwork.com</span>
+  </div>
+</div>
+
+<!-- Step 6 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">🔍</span><div class="step-num">Step 6</div></div>
+  <div class="step-body">
+    <div class="step-title">Search these exact phrases on Indeed, LinkedIn, and Glassdoor daily</div>
+    <div class="child">"When you are looking for something, you have to look in the right place with the right words. If you look for 'dog' when the sign says 'puppy' you will walk right past it."</div>
+    <div class="grownup">Search these exact phrases every morning. Set up job alerts for each one so they email you automatically. New listings appear daily and the good ones fill fast.</div>
+    <div class="do-box">
+      <div class="do-label">◈ Search These Phrases — Set Alerts for Each</div>
+      <div class="do-text">
+        <strong>"Prompt Engineer" remote</strong><br>
+        <strong>"AI Content Designer" remote</strong><br>
+        <strong>"LLM Trainer" remote</strong><br>
+        <strong>"AI System Prompt" remote</strong><br>
+        <strong>"Conversational AI Designer" remote</strong><br>
+        <strong>"RLHF" remote</strong><br>
+        <strong>"AI Quality Evaluator" remote</strong><br>
+        <strong>"Generative AI Specialist" remote</strong><br><br>
+        Set alerts on: <strong>indeed.com</strong> · <strong>linkedin.com/jobs</strong> · <strong>glassdoor.com</strong> · <strong>wellfound.com</strong> (startups)
+      </div>
+    </div>
+    <span class="pill pill-amber">Set Alerts Today · Check Daily</span>
+  </div>
+</div>
+
+<!-- Step 7 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">🏢</span><div class="step-num">Step 7</div></div>
+  <div class="step-body">
+    <div class="step-title">Apply directly to the companies that pay the most</div>
+    <div class="child">"The biggest lemonade stands are the ones that built the lemonade machine. If you understand how the machine works — and you do — you can work at the biggest stand."</div>
+    <div class="grownup">These companies are always hiring for prompt engineers and pay the highest rates. Apply directly on their websites — do not wait for a job board listing.</div>
+    <div class="company-grid">
+      <div class="company">
+        <div class="company-name">Anthropic</div>
+        <div class="company-pay">$200K–$335K</div>
+        <div class="company-desc">The company that makes Claude. Hires for AI safety, prompt design, model behavior. Most prestigious in the field.</div>
+        <a class="company-link" href="https://www.anthropic.com/careers" target="_blank">anthropic.com/careers →</a>
+      </div>
+      <div class="company">
+        <div class="company-name">OpenAI</div>
+        <div class="company-pay">$150K–$300K</div>
+        <div class="company-desc">GPT maker. Hires for model behavior, alignment, and content design. Competitive but possible.</div>
+        <a class="company-link" href="https://openai.com/careers" target="_blank">openai.com/careers →</a>
+      </div>
+      <div class="company">
+        <div class="company-name">Scale AI</div>
+        <div class="company-pay">$50–$150/hr</div>
+        <div class="company-desc">The biggest AI training data company. Always hiring prompt evaluators and trainers. Fast to start.</div>
+        <a class="company-link" href="https://scale.com/careers" target="_blank">scale.com/careers →</a>
+      </div>
+      <div class="company">
+        <div class="company-name">Cohere</div>
+        <div class="company-pay">$120K–$200K</div>
+        <div class="company-desc">Enterprise LLM company. Hires for prompt engineering and AI solutions design for Fortune 500 clients.</div>
+        <a class="company-link" href="https://cohere.com/about#careers" target="_blank">cohere.com/careers →</a>
+      </div>
+      <div class="company">
+        <div class="company-name">Turing.com</div>
+        <div class="company-pay">$50–$100/hr</div>
+        <div class="company-desc">Places AI engineers at Fortune 500 companies remotely. Structured vetting process but global reach.</div>
+        <a class="company-link" href="https://www.turing.com" target="_blank">turing.com →</a>
+      </div>
+      <div class="company">
+        <div class="company-name">Runway / Midjourney / ElevenLabs</div>
+        <div class="company-pay">$100K–$180K</div>
+        <div class="company-desc">Creative AI companies building image, video, and voice tools. Your creative corpus work directly applies.</div>
+        <a class="company-link" href="https://wellfound.com" target="_blank">wellfound.com →</a>
+      </div>
+    </div>
+    <span class="pill pill-blue">Apply This Week · Direct Applications</span>
+  </div>
+</div>
+
+<!-- Step 8 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">✉️</span><div class="step-num">Step 8</div></div>
+  <div class="step-body">
+    <div class="step-title">Write your cover letter — the same one works everywhere with small changes</div>
+    <div class="child">"A cover letter is just a note you put on top of your drawings that says: here is who I am and here is why I made this for you specifically. The note is not longer than one page. The drawings do the real talking."</div>
+    <div class="grownup">Use this template. Change only the company name and the bracketed parts. Keep everything else word for word.</div>
+    <div class="script-box">
+      <div class="script-label">Cover Letter — Copy and Adapt</div>
+      <button class="copy-btn" onclick="copyText(this)">Copy</button>
+      <div class="script-text">Dear [Company Name] Team,<br><br>
+I am writing because I believe I can contribute something most prompt engineering candidates cannot: I have already shipped a production AI system that handles <span class="key">multi-layer prompt chaining, 12-voice corpus design, and output quality evaluation at scale.</span><br><br>
+The Metatron Protocol is an astrological identity system I designed and deployed on Base blockchain. It derives a user's Western zodiac sign, Vedic Nakshatra, and Life Path number from a single birth date, then generates a permanently stored creative corpus — metaphor, structured rhyme, full song, and three haiku — each written in a distinct voice tuned to that specific astrological combination.<br><br>
+What this demonstrates in terms of prompt engineering:<br>
+· Structured context injection across multi-step generation pipelines<br>
+· Consistent voice architecture maintained across 12 distinct tonal profiles<br>
+· Quality evaluation methodology tracking hallucination rates, output coherence, and format compliance across 100,000 simulated records<br>
+· Plain-language documentation of complex AI behavior for non-technical audiences<br><br>
+Beyond the technical work, I have an unusual ability to explain AI behavior in language that non-technical users and stakeholders immediately understand. I believe this is as important as technical precision — perhaps more so.<br><br>
+I would welcome the opportunity to show you the system directly. The full portfolio is at [YOUR NOTION/MIRROR LINK].<br><br>
+With respect,<br>
+[Your name]</div>
+    </div>
+    <span class="pill pill-amber">Use for Every Application</span>
+  </div>
+</div>
+
+<!-- Step 9 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">🌐</span><div class="step-num">Step 9</div></div>
+  <div class="step-body">
+    <div class="step-title">Post on X and LinkedIn that you are available — make the market come to you</div>
+    <div class="child">"Sometimes the best way to find something is to stop looking and let it find you. You put a flag on your house that says what you do. The right person drives past and sees the flag."</div>
+    <div class="grownup">Post this on both X and LinkedIn today. The AI community on X is extremely active and companies actively scout there. One good post seen by the right person changes everything.</div>
+    <div class="script-box">
+      <div class="script-label">X / LinkedIn Post — Available for Work</div>
+      <button class="copy-btn" onclick="copyText(this)">Copy</button>
+      <div class="script-text">I am available for remote AI prompt engineering work.<br><br>
+What I bring that most candidates do not: I designed and shipped the Metatron Protocol — a production AI system that generates unique astrological creative content through multi-layer prompt chaining across 12 distinct voice profiles, permanently stored on Arweave via blockchain.<br><br>
+I specialize in:<br>
+· System prompt architecture for complex multi-step outputs<br>
+· Voice and tone consistency across large AI corpora<br>
+· Plain-language documentation of AI behavior for non-technical users<br>
+· Quality evaluation and hallucination rate tracking at scale<br><br>
+Open to: contract, freelance, or full-time remote roles.<br>
+Rate: $[YOUR RATE]/hr or open to discuss.<br><br>
+Portfolio: [YOUR LINK]<br><br>
+#PromptEngineering #AIJobs #RemoteWork #LLM #GenerativeAI</div>
+    </div>
+    <span class="pill pill-green">Post Today · Free · Immediate Reach</span>
+  </div>
+</div>
+
+<!-- Step 10 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">🤝</span><div class="step-num">Step 10</div></div>
+  <div class="step-body">
+    <div class="step-title">Join the communities where the jobs live before they hit the boards</div>
+    <div class="child">"The best jobs never get posted on the bulletin board. They get shared in the hallway before the meeting. If you are in the hallway, you hear them first."</div>
+    <div class="grownup">Most prompt engineering contracts are shared in communities before they are posted publicly. Join these and be active — post your work, ask questions, help others. That is how you get known.</div>
+    <div class="do-box">
+      <div class="do-label">◈ Join These Communities Now</div>
+      <div class="do-text">
+        <strong>Discord: AI Founders</strong> — discord.gg/aifounders<br>
+        <strong>Discord: Hugging Face</strong> — huggingface.co/join/discord<br>
+        <strong>Discord: LangChain</strong> — discord.gg/langchain<br>
+        <strong>Reddit: r/PromptEngineering</strong> — growing fast, jobs posted daily<br>
+        <strong>Reddit: r/MachineLearning</strong> — senior roles shared here<br>
+        <strong>Slack: MLOps Community</strong> — mlops.community<br>
+        <strong>X: Follow #PromptEngineering</strong> — jobs posted constantly<br><br>
+        In every community, introduce yourself and mention the Metatron Protocol. <strong>Share something you learned. Help someone. Offer before you ask.</strong> That is the five year old move — give first.
+      </div>
+    </div>
+    <span class="pill pill-blue">This Week · Free · Where the Real Jobs Are</span>
+  </div>
+</div>
+
+<!-- Step 11 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">📚</span><div class="step-num">Step 11</div></div>
+  <div class="step-body">
+    <div class="step-title">Get the one free certificate that opens the most doors</div>
+    <div class="child">"Sometimes you need a badge that says you know what you know. Not because you need the badge — you already know it. But because the person at the door has not seen your work yet and the badge helps them say yes faster."</div>
+    <div class="grownup">The <strong>DeepLearning.AI Prompt Engineering for Developers</strong> course is free, takes 3 hours, and is made by Andrew Ng — the most respected name in AI education. Every hiring manager knows it. Complete it and add the certificate to your LinkedIn and portfolio. It closes the only gap skeptical employers might see.</div>
+    <div class="do-box">
+      <div class="do-label">◈ One Certificate — Three Hours — Free</div>
+      <div class="do-text">
+        <strong>deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers</strong><br><br>
+        Free. No credit card. Starts immediately. Certificate downloads when complete.<br>
+        Add it to LinkedIn under Licenses & Certifications.<br>
+        This plus the Metatron Protocol = a stronger portfolio than 90% of applicants.
+      </div>
+    </div>
+    <span class="pill pill-amber">This Week · 3 Hours · Free Certificate</span>
+  </div>
+</div>
+
+<!-- Step 12 -->
+<div class="step">
+  <div class="step-left"><span class="step-emoji">🚀</span><div class="step-num">Step 12</div></div>
+  <div class="step-body">
+    <div class="step-title">Use your Metatron work as a live demo in every interview</div>
+    <div class="child">"When you go to show someone what you can do, do not talk about what you can do. Show them. Turn on the screen. Open the file. Let them touch it. That is the difference between an interview and a demonstration. A demonstration always wins."</div>
+    <div class="grownup">In every interview or test task, open the Corpus Viewer. Ask for the interviewer's birthday. Generate their corpus live. Then walk through the prompt architecture: how context is injected, how voice is maintained, how quality is measured. <strong>You are not describing your skills. You are demonstrating them in real time.</strong> Nobody else in the interview process can do this. Nobody.</div>
+    <div class="do-box">
+      <div class="do-label">◈ The Demo That Wins Every Interview</div>
+      <div class="do-text">
+        <strong>Step 1:</strong> "Can I show you something I built?" — They always say yes.<br><br>
+        <strong>Step 2:</strong> Open metatron-corpus.html. Ask their birthday. Generate it live.<br><br>
+        <strong>Step 3:</strong> Read their haiku to them. Pause.<br><br>
+        <strong>Step 4:</strong> "That was generated by a prompt system I designed. Let me walk you through the architecture." — Then explain the multi-layer prompt chain, the voice profiles, the quality metrics.<br><br>
+        <strong>Step 5:</strong> Show them the simulation data. Show them the contract on Basescan. Show the publications on Mirror.xyz.<br><br>
+        <strong>You just turned an interview into a product demonstration. That is the job.</strong>
+      </div>
+    </div>
+    <span class="pill pill-green">Every Interview · Unstoppable</span>
+  </div>
+</div>
+
+<div class="div">✦ · · · ✦</div>
+
+<!-- FIVE YEAR OLD WISDOM -->
+<div class="sh">
+  <h2>The Questions a Five Year Old Would Ask</h2>
+  <div class="desc">About getting this job. Answered honestly.</div>
+  <div class="line"></div>
+</div>
+
+<div class="wisdom">
+  <div class="wisdom-q">"But do I need a computer science degree?"</div>
+  <div class="wisdom-a">No. <strong>Most prompt engineers do not have CS degrees. Many come from writing, linguistics, philosophy, communications, and creative fields.</strong> What matters is proof that you can make AI do what it needs to do. The Metatron Protocol is that proof. A degree is a piece of paper. Your project is running right now on a real blockchain. The project wins.</div>
+</div>
+
+<div class="wisdom">
+  <div class="wisdom-q">"But I am not a programmer."</div>
+  <div class="wisdom-a">You do not need to be. <strong>Prompt engineering is writing, not coding.</strong> The most important skill is understanding how language shapes AI behavior — knowing that the difference between "write a metaphor about fire" and "write an extended metaphor about fire as transformation, in the voice of someone who has survived loss, for a Scorpio audience" is the difference between a generic output and a profound one. You already understand that distinction. You proved it with 12 signs worth of corpus.</div>
+</div>
+
+<div class="wisdom">
+  <div class="wisdom-q">"What if they ask me to do a test task?"</div>
+  <div class="wisdom-a">Say yes immediately. Test tasks are where you win. <strong>While other candidates write a generic prompt, you write one with context injection, voice specification, output format constraints, and a quality rubric.</strong> You have been doing exactly that for this entire project. A test task is just a smaller version of what you already built.</div>
+</div>
+
+<div class="wisdom">
+  <div class="wisdom-q">"How fast can I start making money?"</div>
+  <div class="wisdom-a">If you apply to DataAnnotation and Scale AI today — <strong>you can be earning $30–$50/hour within one week.</strong> Upwork contracts typically start within two to four weeks of setting up a profile. Full-time positions take four to eight weeks from application to offer. The freelance market is the fastest. Start there while the full-time applications move forward in parallel.</div>
+</div>
+
+<div class="wisdom">
+  <div class="wisdom-q">"Is the Metatron Protocol really enough to get hired?"</div>
+  <div class="wisdom-a">Yes. And here is the five year old truth of it: <strong>most people applying for these jobs have never made anything.</strong> They read about prompts. They watched videos about prompts. They took courses about prompts. You built a production system, deployed it on a real blockchain, ran a 100,000 record simulation, designed 12 distinct literary voices, and documented every step clearly enough that a five year old can follow it.<br><br>That is not a portfolio. That is a body of work.</div>
+</div>
+
+<div class="div">✦ · · · ✦</div>
+
+<div class="wonder">
+  <div class="wonder-text">
+    "You did not build Metatron to get a job.<br>
+    But everything you did to build it<br>
+    is exactly what the job requires.<br>
+    That is not a coincidence.<br>
+    That is who you are."
+  </div>
+  <div class="wonder-attr">✦ Metatron Protocol · Get Hired · Remote · $30–$335K · Start This Week</div>
+</div>
+
+<div class="div">✦</div>
+<div style="text-align:center;font-size:10px;color:rgba(200,169,110,.17);letter-spacing:.36em;text-transform:uppercase;line-height:2.4;">
+  Metatron Protocol · AI Prompt Engineering Career Guide<br>
+  Remote Work · Five Year Old Wisdom · Start Today
+</div>
+
+</div>
+<script>
+function copyText(btn) {
+  const box = btn.closest('.script-box');
+  const el = box.querySelector('.script-text');
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+  });
+}
+</script>
+</body>
+</html>
